@@ -51,7 +51,8 @@
 ```html
 <section class="rk-summary">
   <h2>핵심 요약</h2>
-  <p class="rk-bluf">3분기 매출 1,820억원으로 목표 101% 달성, 원가 상승으로 영업이익률은 7.8%(△1.1%p)로 하락함</p>
+  <p class="rk-bluf">3분기 매출은 목표를 넘겼지만 원가 상승으로 이익률 1.1%p 하락 — 4분기 단가 3% 인상 필요</p>
+  <p class="rk-why">경쟁사 2곳이 이미 인상해 11월 계약 갱신 전에 결정해야 하며, 동결 시 연간 이익 -24억원</p>
   <ol class="rk-keypoints">
     <li><strong>매출 1,820억원, 전년 동기 대비 +4.1%</strong> — 신제품 A 판매 호조(+38억원)가 견인</li>
     <li><strong>영업이익 142억원, 전년 대비 -8.4%</strong> — 원재료비 +9% 상승이 주 원인</li>
@@ -61,9 +62,12 @@
   [ {"label":"매출액","value":1820,"unit":"억원","delta":"+4.1%","deltaLabel":"전년 동기 대비","progress":101},
     {"label":"영업이익률","value":7.8,"unit":"%","delta":"-1.1%p","deltaLabel":"전년 동기 대비","status":"warn"} ]
   </script></div>
-  <div class="rk-ask"><b>요청사항</b>11/15까지 4분기 단가 인상안(평균 3%) 승인 요청</div>
+  <p class="rk-risk">인상 후 주요 고객 2곳 이탈 시 매출 -3%로 효과 상쇄 <span class="rk-conf mid"></span></p>
+  <div class="rk-ask"><b>요청사항</b>11/15까지 4분기 단가 인상안(평균 3%) 승인 요청 (주관: 영업본부)</div>
 </section>
 ```
+- 순서: 결론 → 왜 지금 → 핵심 메시지 3개 → KPI → 리스크 → 요청. `rk-why`·`rk-risk` 라벨('왜 지금', '리스크')은 자동.
+- 결론 100자·숫자 3개 이내, 핵심 메시지 굵은 글씨 50자 이내.
 - 핵심 메시지는 **3개**(최대 5개). 각 항목은 본문 섹션 하나와 대응.
 - 요청/결정 사항이 없으면 `.rk-ask` 대신 "향후 계획" 한 줄을 써도 된다.
 
@@ -210,6 +214,33 @@
 </div>
 ```
 콜아웃은 섹션당 1~2개까지. 남발하면 강조 효과가 사라진다.
+
+### 판단·실행 컴포넌트
+
+```html
+<!-- 확신도 배지: 핵심 판단 옆. 비워 두면 '확신도 높음/중간/낮음' 자동 -->
+<p class="rk-lead">공급과잉은 2028년까지 이어질 가능성 높음 <span class="rk-conf mid"></span></p>
+
+<!-- 실행 과제 표: 대응·계획·제언 섹션 필수 -->
+<table class="rk-table rk-actions">
+  <thead><tr><th>과제</th><th>담당(주관/협조)</th><th>기한</th><th>성공 지표</th><th>필요 자원</th></tr></thead>
+  <tbody>
+    <tr><td>4분기 단가 3% 인상 통보</td><td>영업본부 / 재무팀</td><td>2026.11.30</td><td>이익률 7.8%→8.6%</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<!-- 판단을 바꿀 신호: 전망에 기대는 보고서 -->
+<table class="rk-table rk-signals">
+  <thead><tr><th>지표</th><th>현재</th><th>임계값</th><th>넘으면</th></tr></thead>
+  <tbody><tr><td>주요 고객 이탈</td><td>0곳</td><td>2곳 이상</td><td>인상폭 1.5%로 조정</td></tr></tbody>
+</table>
+
+<!-- 예상 질문 -->
+<dl class="rk-faq">
+  <dt>인상 대신 원가 절감으로 대응할 수 없는가?</dt>
+  <dd>원가 절감 여력은 연 8억원으로 이익 감소분(24억원)의 3분의 1 수준이다.</dd>
+</dl>
+```
 
 ## 7. 레이아웃
 

@@ -393,6 +393,8 @@ def lint_text(text, path="<text>"):
                 issues.append(("WARN", l, f"수치 없는 모호한 표현: '{t[:40]}' — 숫자·비교기준·기간을 함께"))
                 break
 
+    issues += judgement_checks(body, cls_set)
+
     # 요약 ↔ 본문 수치 일관성
     summ = " ".join(p.summary_text)
     if summ:
@@ -406,6 +408,111 @@ def lint_text(text, path="<text>"):
     issues = [(lv, (ln or 0) + offset, msg) for lv, ln, msg in issues]
     issues.sort(key=lambda x: (0 if x[0] == "ERROR" else 1, x[1]))
     return {"path": path, "issues": issues, "charts": n_charts, "sections": len(p.sections), "appendix": len([s for s in p.sections if s["appendix"]])}
+
+
+# ---------------------------------------------------------------- 판단의 질 (결론 문장·권고·확신도·신호)
+LEAD_MAX, BLUF_MAX, KP_MAX = 60, 100, 50
+UNIT_NUM = re.compile(r"[-+△▲▼]?\d[\d,]*(?:\.\d+)?\s*(?:%p|%|조|억|백만|만|천|원|달러|t\b|배|건|명|개|GWh|GW|MW|위안|유로|€|\$|점|bp)")
+ACTION_H2 = re.compile(r"향후|계획|대책|과제|제언|권고|실행|대응\s*방향|로드맵")
+EMPTY_ALT = re.compile(r"TF\s*구성|검토\s*(?:필요|예정)|모니터링\s*강화|협력\s*강화|방안\s*마련|노력\s*(?:필요|강화)|대응\s*필요|관심\s*필요|적극\s*검토|지속\s*추진|면밀히\s*검토")
+SUBJECTIVE = ("극심한", "엄청난", "대승적", "획기적", "막대한", "폭발적", "압도적", "심각한 수준")
+HEDGE = re.compile(r"전망|예상|가능성|추정|우려|것으로 보|시나리오")
+
+
+def _txt(h):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", h)).strip()
+
+
+def _line(body, pos):
+    return body[:pos].count("\n") + 1
+
+
+def storyline(body):
+    """BLUF + 섹션별 (h2, 결론 문장) — 이어 읽어 이야기가 되는지 확인용."""
+    out = []
+    b = re.search(r'class="rk-bluf"[^>]*>(.*?)</p>', body, re.S)
+    if b:
+        out.append(("결론", _txt(b.group(1))))
+    for m in re.finditer(r'<section\s+class="rk-section(?![^"]*rk-appendix)[^"]*"[^>]*>(.*?)</section>', body, re.S):
+        h2 = re.search(r"<h2[^>]*>(.*?)</h2>", m.group(1), re.S)
+        ld = re.search(r'class="rk-lead"[^>]*>(.*?)</p>', m.group(1), re.S)
+        out.append((_txt(h2.group(1)) if h2 else "?", _txt(ld.group(1)) if ld else "(결론 문장 없음)"))
+    return out
+
+
+def judgement_checks(body, cls_set):
+    iss = []
+    W = lambda ln, m: iss.append(("WARN", ln, m))
+    # 1) 결론 문장 다이어트
+    for m in re.finditer(r'class="rk-lead"[^>]*>(.*?)</p>', body, re.S):
+        t = _txt(m.group(1)); n = len(UNIT_NUM.findall(t))
+        if len(t) > LEAD_MAX or n > 2:
+            W(_line(body, m.start()), f"결론 문장 {len(t)}자·핵심 숫자 {n}개 — {LEAD_MAX}자 이내, 숫자 1~2개로 줄이고 나머지는 해설 단락·차트로: '{t[:28]}…'")
+    b = re.search(r'class="rk-bluf"[^>]*>(.*?)</p>', body, re.S)
+    if b:
+        t = _txt(b.group(1)); n = len(UNIT_NUM.findall(t))
+        if len(t) > BLUF_MAX or n > 3:
+            W(_line(body, b.start()), f"요약 결론(rk-bluf) {len(t)}자·숫자 {n}개 — {BLUF_MAX}자·숫자 3개 이내. 이유는 p.rk-why, 요청은 .rk-ask로 분리")
+    c = re.search(r'class="rk-cover-sub"[^>]*>(.*?)</p>', body, re.S)
+    if c:
+        t = _txt(c.group(1)); n = len(UNIT_NUM.findall(t))
+        if len(t) > 80 or n > 3:
+            W(_line(body, c.start()), f"표지 부제 {len(t)}자·숫자 {n}개 — 80자·숫자 3개 이내(수치는 rk-cover-stats로)")
+    for m in re.finditer(r'<ol class="rk-keypoints">(.*?)</ol>', body, re.S):
+        for s in re.findall(r"<li>\s*<strong>(.*?)</strong>", m.group(1), re.S):
+            t = _txt(s)
+            if len(t) > KP_MAX:
+                W(_line(body, m.start()), f"핵심 메시지 굵은 글씨 {len(t)}자 — {KP_MAX}자 이내(근거는 — 뒤로): '{t[:24]}…'")
+    # 2) 요약: 왜 지금 · 리스크
+    if "rk-summary" in cls_set:
+        if "rk-ask" in cls_set and "rk-why" not in cls_set:
+            W(1, "요약에 '왜 지금'(p.rk-why) 없음 — 요청이 있으면 지금 결정해야 하는 이유·안 하면 생기는 일을 한 줄로")
+        if "rk-risk" not in cls_set:
+            W(1, "요약에 주요 리스크 한 줄(p.rk-risk) 없음 — 결론이 틀릴 수 있는 가장 큰 이유 + 확신도")
+    # 3) 실행 과제 표
+    for m in re.finditer(r'<section\s+class="rk-section(?![^"]*rk-appendix)[^"]*"[^>]*>(.*?)</section>', body, re.S):
+        h2 = re.search(r"<h2[^>]*>(.*?)</h2>", m.group(1), re.S)
+        name = _txt(h2.group(1)) if h2 else ""
+        if ACTION_H2.search(name) and not re.search(r'rk-actions|rk-decision', m.group(1)):
+            W(_line(body, m.start()), f"섹션 '{name[:20]}': 실행 과제 표(table.rk-actions — 과제·담당·기한·성공 지표·필요 자원) 없음")
+    for m in re.finditer(r'<table class="[^"]*rk-actions[^"]*"[^>]*>(.*?)</table>', body, re.S):
+        head = _txt(" ".join(re.findall(r"<th[^>]*>(.*?)</th>", m.group(1), re.S)))
+        miss = [k for k in ("담당", "기한") if k not in head]
+        if miss:
+            W(_line(body, m.start()), f"실행 과제 표에 {'·'.join(miss)} 열 없음 — 누가·언제까지가 있어야 실행됨")
+    # 4) 절차·다짐을 대안으로 포장
+    targets = re.findall(r'class="rk-(?:ask|sowhat)"[^>]*>(.*?)</(?:div|p)>', body, re.S)
+    for m in re.finditer(r'<table class="[^"]*rk-actions[^"]*"[^>]*>(.*?)</table>', body, re.S):
+        targets += re.findall(r"<tr[^>]*>\s*<td[^>]*>(.*?)</td>", m.group(1), re.S)
+    for t in map(_txt, targets):
+        mm = EMPTY_ALT.search(t)
+        if mm and not re.search(r"\d", t):
+            W(1, f"'{mm.group(0)}'만으로는 대안이 아님 — 무엇을·얼마나·언제까지로: '{t[:30]}…'")
+            break
+    # 5) 주관적 수식어
+    plain = _txt(re.sub(r"<script.*?</script>", " ", body, flags=re.S))
+    subj = [w for w in SUBJECTIVE if w in plain]
+    if subj:
+        W(1, f"근거 없는 판단 수식어 {', '.join(subj)} — 숫자·출처로 바꾸거나 삭제")
+    # 6) 확신도
+    claims = " ".join(_txt(x) for x in re.findall(r'class="rk-(?:lead|sowhat|bluf|risk)"[^>]*>(.*?)</p>', body, re.S))
+    n_hedge = len(HEDGE.findall(claims))
+    if n_hedge >= 3 and "rk-conf" not in cls_set:
+        W(1, f"결론·시사점에 전망·추정 표현 {n_hedge}건인데 확신도 표시 없음 — 핵심 판단 옆에 <span class=\"rk-conf high|mid|low\"></span>")
+    # 7) 판단을 바꿀 신호
+    if len(HEDGE.findall(plain)) >= 8 and "rk-signals" not in cls_set:
+        W(1, "전망 중심 보고서인데 '판단을 바꿀 신호' 표(table.rk-signals — 지표·현재·임계값·넘으면) 없음")
+    return iss
+
+
+def print_story(body):
+    st = storyline(body)
+    if not st:
+        return
+    print("[STORY] 결론 문장만 이어 읽기 — 이것만으로 이야기가 되는지 확인:")
+    for i, (h, t) in enumerate(st):
+        flag = " ⚠" if (i and (len(t) > LEAD_MAX or len(UNIT_NUM.findall(t)) > 2)) else ""
+        print(f"  {'요약' if i == 0 and h == '결론' else f'{i:>2}'} {h[:16]:<16} │ {t}{flag}")
 
 
 def print_report(res, quiet=False):
@@ -425,11 +532,14 @@ def main():
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     with open(a.path, encoding="utf-8") as f:
-        res = lint_text(f.read(), a.path)
+        text_src = f.read()
+    res = lint_text(text_src, a.path)
     if a.json:
         print(json.dumps(res, ensure_ascii=False, indent=2))
         return 1 if any(i[0] == "ERROR" for i in res["issues"]) else 0
-    return 1 if print_report(res) else 0
+    n = print_report(res)
+    print_story(text_src)
+    return 1 if n else 0
 
 
 if __name__ == "__main__":

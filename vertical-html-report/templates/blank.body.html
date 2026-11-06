@@ -2,12 +2,15 @@
 title: 보고서 제목
 theme: navy
 -->
+<!-- ✎ 빈 템플릿: 괄호 안 안내문을 실제 내용으로 바꿀 것. 예시 차트의 "sample": true 는 실제 데이터로 교체한 뒤 지운다.
+     섹션 순서 = 현황·문제점 → 원인 → 대안 → 실행(실행 과제 표). 섹션 결론(rk-lead) 60자·숫자 1~2개, 요약 결론(rk-bluf) 100자·숫자 3개 이내.
+     요청할 것이 없는 보고서는 .rk-ask 대신 '향후 계획' 한 줄을 써도 되지만, rk-why·rk-risk 는 남긴다. -->
 <header class="rk-cover">
   <div class="rk-cover-top"><span class="rk-cover-kind">보고서 유형</span></div>
   <h1>보고서 제목</h1>
-  <p class="rk-cover-sub">한 줄 결론 (숫자 포함)</p>
+  <p class="rk-cover-sub">한 줄 결론 (숫자 포함, 요약 결론과 같은 내용)</p>
   <ul class="rk-cover-stats">
-    <li><b>0</b><span>핵심 수치 1 (선택)</span></li>
+    <li><b>0</b><span>핵심 수치 1 (본문에 있는 숫자만)</span></li>
     <li><b>0</b><span>핵심 수치 2</span></li>
     <li><b>0</b><span>핵심 수치 3</span></li>
   </ul>
@@ -20,11 +23,12 @@ theme: navy
 
 <section class="rk-summary">
   <h2>핵심 요약</h2>
-  <p class="rk-bluf">결론 한 문장 (숫자 포함)</p>
+  <p class="rk-bluf">결론 한 문장 (100자·숫자 3개 이내, 무엇을 해야 하는지까지)</p>
+  <p class="rk-why">왜 지금 판단해야 하는가 · 판단하지 않으면 생기는 일 (기한·손실 숫자)</p>
   <ol class="rk-keypoints">
-    <li><strong>핵심 메시지 1</strong> — 근거</li>
-    <li><strong>핵심 메시지 2</strong> — 근거</li>
-    <li><strong>핵심 메시지 3</strong> — 근거</li>
+    <li><strong>핵심 메시지 1 (50자 이내, 숫자)</strong> — 근거 (본문 1번 섹션과 대응)</li>
+    <li><strong>핵심 메시지 2</strong> — 근거 (본문 2번 섹션과 대응)</li>
+    <li><strong>핵심 메시지 3</strong> — 근거 (본문 3번 섹션과 대응)</li>
   </ol>
   <div class="rk-kpis"><script type="application/json">
   [
@@ -33,17 +37,20 @@ theme: navy
     {"label": "지표 3", "value": 0, "unit": ""}
   ]
   </script></div>
-  <div class="rk-ask"><b>요청사항</b>결정·협조가 필요한 사항과 기한</div>
+  <p class="rk-risk">결론이 틀릴 수 있는 가장 큰 이유 한 줄 (확신도: high·mid·low 중 선택) <span class="rk-conf mid"></span></p>
+  <div class="rk-ask"><b>요청사항</b>무엇을 · 누가(결정권자·주관 부서) · 언제까지</div>
 </section>
 
 <section class="rk-section">
-  <h2>섹션 제목</h2>
-  <p class="rk-lead">이 섹션의 결론 (숫자 포함)</p>
-  <p>해설 단락 2~4문장: 무엇이 일어났는지(숫자), 왜 그런지(원인·배경), 그래서 무엇을 의미하는지(영향·판단 포인트)를 평서문으로 설명한다. 차트를 그대로 읽어주는 문장은 쓰지 않는다.</p>
+  <h2>섹션 제목 (현황·문제점)</h2>
+  <p class="rk-lead">이 섹션의 결론 한 줄 (60자·숫자 1~2개)</p>
+  <p>첫 단락은 무엇이 일어났는지를 숫자로 쓴다. 비교 기준(전년 동기·목표·전월)과 기간을 함께 밝히고, 비율의 차이는 %p로 쓴다. 차트 내용을 그대로 읽어 주는 문장은 쓰지 않고, 독자가 차트를 보기 전에 알아야 할 맥락을 3~5문장으로 정리한다.</p>
+  <p>둘째 단락은 왜 그런 일이 일어났는지, 원인과 배경을 설명한다. 확인된 사실과 추정을 구분하고, 상관관계만 있으면 '때문에' 대신 '동반', '연관'으로 쓴다. 근거가 되는 숫자는 단락에서도 인용하고, 출처가 다르면 함께 밝힌다.</p>
+  <p>셋째 단락은 그래서 무엇을 의미하는지, 독자의 판단에 어떤 영향을 주는지를 쓴다. 전망이 들어간 판단에는 확신도 배지를 붙이고 가능성은 표준 표현(가능성 높음 등)으로 쓴다. 문체는 평서문(~이다/~했다)으로 통일한다.</p>
   <div class="rk-chart"><script type="application/json">
   {
     "type": "bar",
-    "title": "결론형 차트 제목",
+    "title": "결론형 차트 제목 (숫자 포함)",
     "subtitle": "주제·기간",
     "unit": "단위",
     "categories": ["A", "B", "C"],
@@ -54,9 +61,24 @@ theme: navy
   }
   </script></div>
   <ul class="rk-gae">
-    <li>세부 내용 (개조식)
+    <li>세부 내용 (개조식, 한 줄 한 메시지, 숫자 앞쪽)
       <ul><li>하위 내용</li></ul>
     </li>
   </ul>
-  <p class="rk-sowhat">시사점 또는 다음 조치</p>
+  <p class="rk-sowhat">시사점 또는 다음 조치 한 줄 (무엇을·얼마나)</p>
+</section>
+
+<section class="rk-section">
+  <h2>향후 계획</h2>
+  <p class="rk-lead">실행 계획의 결론 한 줄 (목표 숫자 1개)</p>
+  <p>계획 섹션은 앞 섹션에서 밝힌 문제와 원인에 하나씩 대응하는 과제로 구성한다. 첫 단락에는 과제의 순서와 핵심 일정, 전체 소요 예산을 쓰고, 왜 그 순서인지를 함께 설명한다.</p>
+  <p>둘째 단락에는 진척을 누가 언제 점검하는지, 계획을 바꿔야 하는 조건은 무엇인지를 쓴다. 'TF 구성·검토 필요·모니터링 강화'처럼 절차나 다짐으로 끝나는 과제는 쓰지 않고, 아래 표처럼 과제마다 담당·기한·성공 지표를 숫자로 채운다.</p>
+  <table class="rk-table rk-actions">
+    <thead><tr><th>과제</th><th>담당(주관/협조)</th><th>기한</th><th>성공 지표</th><th>필요 자원</th></tr></thead>
+    <tbody>
+      <tr><td>동사로 끝나는 구체 행동 1</td><td>주관 부서 / 협조 부서</td><td>YYYY.MM.DD</td><td>현재값 → 목표값</td><td>예산·인력</td></tr>
+      <tr><td>동사로 끝나는 구체 행동 2</td><td>주관 부서 / 협조 부서</td><td>YYYY.MM.DD</td><td>현재값 → 목표값</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p class="rk-sowhat">가장 먼저 결정·착수해야 할 과제 한 줄 (기한 포함)</p>
 </section>

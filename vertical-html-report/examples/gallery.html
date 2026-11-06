@@ -229,6 +229,51 @@ body {
 .rk-ask > b:first-child, .rk-ask > strong:first-child {
   flex: none; font-size: var(--rk-fs-sm); color: #fff; background: var(--rk-accent); padding: 2px 10px; border-radius: 999px;
 }
+/* 요약: 왜 지금(결론 바로 아래) · 리스크(요청 바로 위) — 라벨은 자동 */
+.rk-why, .rk-risk { display: flex; gap: 12px; align-items: baseline; font-size: var(--rk-fs-sm); line-height: 1.65; color: var(--rk-ink-2); }
+.rk-why { margin: 0 0 14px !important; }
+.rk-risk { margin: 14px 0 0 !important; }
+.rk-why::before, .rk-risk::before {
+  flex: none; font-size: var(--rk-fs-xs); font-weight: 800; padding: 1px 10px; border-radius: 999px; line-height: 1.7;
+}
+.rk-why::before { content: "왜 지금"; color: var(--rk-brand); background: var(--rk-paper); border: 1px solid var(--rk-brand-line); }
+.rk-risk::before { content: "리스크"; color: var(--rk-warn); background: var(--rk-warn-soft); }
+
+/* 확신도 배지: <span class="rk-conf high|mid|low"></span> — 비워 두면 '확신도 높음/중간/낮음' 자동 */
+.rk-conf {
+  --f: 66%; display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; margin: 0 2px; border-radius: 999px;
+  font-size: var(--rk-fs-xs); font-weight: 700; line-height: 1.7; white-space: nowrap; vertical-align: .08em;
+  color: var(--rk-brand); background: var(--rk-paper); border: 1px solid var(--rk-brand-line);
+}
+.rk-conf::before { content: ""; width: 20px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, currentColor var(--f), var(--rk-surface-3) var(--f)); }
+.rk-conf.high { --f: 100%; }
+.rk-conf.mid  { --f: 66%; }
+.rk-conf.low  { --f: 33%; color: var(--rk-muted); border-color: var(--rk-line-strong); }
+.rk-conf.high:empty::after { content: "확신도 높음"; }
+.rk-conf.mid:empty::after  { content: "확신도 중간"; }
+.rk-conf.low:empty::after  { content: "확신도 낮음"; }
+
+/* 실행 과제 표(과제·담당·기한·성공 지표·필요 자원) · 판단을 바꿀 신호 표 */
+.rk-actions td:first-child, .rk-signals td:first-child { font-weight: 600; color: var(--rk-ink); }
+.rk-actions th:first-child { width: 31%; min-width: 200px; }
+.rk-actions th:nth-child(2) { width: 14%; }
+.rk-actions th:nth-child(3) { width: 12%; white-space: nowrap; }
+.rk-actions th:nth-child(4) { width: 26%; }
+.rk-actions th:nth-child(5) { width: 17%; }
+.rk-signals th:first-child { width: 26%; }
+.rk-signals th:last-child { width: 34%; }
+.rk-signals td:last-child { color: var(--rk-ink-2); }
+
+/* 예상 질문(FAQ) */
+.rk-faq { margin: 0 0 24px; }
+.rk-faq > dt { position: relative; margin: 18px 0 6px; padding-left: 30px; font-weight: 700; color: var(--rk-ink); line-height: 1.6; }
+.rk-faq > dt:first-child { margin-top: 0; }
+.rk-faq > dt::before {
+  content: "Q"; position: absolute; left: 0; top: .15em; width: 21px; height: 21px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; background: var(--rk-brand);
+}
+.rk-faq > dd { margin: 0 0 0 30px; padding-bottom: 14px; border-bottom: 1px solid var(--rk-line); color: var(--rk-ink-2); line-height: 1.75; }
+.rk-faq > dd:last-child { border-bottom: 0; }
 
 /* ---------- 7. 섹션 / 제목 ---------- */
 .rk-section { margin: 0 0 52px; counter-increment: rk-sec; counter-reset: rk-sub; }
@@ -704,6 +749,7 @@ body {
 .rk-table thead th { background: linear-gradient(180deg, var(--rk-surface-2) 0%, var(--rk-surface-3) 100%); border-top-color: var(--rk-brand); }
 .rk-table thead th.rk-rec { background: var(--rk-grad-brand); }
 .rk-badge.solid { background: var(--rk-grad-brand); }
+.rk-faq > dt::before { background: var(--rk-grad-brand); }
 
 /* 평면형 (style: flat) — 위의 그라데이션·그림자·질감을 모두 끈다 */
 [data-style="flat"] {
@@ -816,7 +862,8 @@ body {
 
 <section class="rk-summary">
   <h2>핵심 요약</h2>
-  <p class="rk-bluf">3분기 매출 1,820억원으로 목표 101% 달성, 다만 원재료비 상승으로 영업이익률은 7.8%(전년 대비 △1.1%p)로 하락함</p>
+  <p class="rk-bluf">3분기 매출은 목표 101%를 달성했지만 원재료비로 영업이익률 1.1%p 하락 — 4분기 단가 3% 인상 필요</p>
+  <p class="rk-why">경쟁사 2곳이 이미 인상해 11월 계약 갱신 전에 결정해야 하며, 동결 시 연간 영업이익 -24억원</p>
   <ol class="rk-keypoints">
     <li><strong>매출 1,820억원, 전년 동기 대비 +4.1%</strong> — 신제품 A 판매 호조(+38억원)가 성장 견인</li>
     <li><strong>영업이익 142억원, 전년 대비 -8.4%</strong> — 원재료비 +9% 상승이 주 원인</li>
@@ -832,7 +879,8 @@ body {
     ]
     </script>
   </div>
-  <div class="rk-ask"><b>요청사항</b>11/15까지 4분기 단가 인상안(평균 3%) 승인 요청</div>
+  <p class="rk-risk">인상 후 주요 고객 2곳이 이탈하면 매출 -3%로 인상 효과가 상쇄됨 <span class="rk-conf mid"></span></p>
+  <div class="rk-ask"><b>요청사항</b>11/15까지 4분기 단가 인상안(평균 3%) 승인 요청 (주관: 영업본부)</div>
 </section>
 
 <section class="rk-section">
@@ -1380,6 +1428,38 @@ body {
       <li><b>구매 승인 전결 한도 상향(3천만→5천만원)</b> — 규정 개정 12/1 시행</li>
     </ol>
   </div>
+</section>
+
+<section class="rk-section">
+  <h2>판단 · 실행 컴포넌트</h2>
+  <p class="rk-lead">단가 3% 인상 시 이익률 8.6%로 회복 가능성 높음 <span class="rk-conf mid"></span></p>
+  <p>확신도 배지는 전망·추정이 들어간 핵심 판단 옆에만 단다. 높음은 공시·통계처럼 서로 일치하는 1차 자료가 여럿일 때, 중간은 2차 자료이거나 일부 가정이 필요할 때, 낮음은 단일 출처나 추정 모델에 기댈 때 쓴다. 가능성 자체는 '가능성 높음(55~80%)'처럼 표준 7단계 표현으로 따로 적는다. 아래 표는 권고를 실행 가능한 과제로 바꾸는 실행 과제 표와, 결론을 다시 검토해야 하는 조건을 미리 적어 두는 판단을 바꿀 신호 표다.</p>
+  <p>예시 배지: <span class="rk-conf high"></span> <span class="rk-conf mid"></span> <span class="rk-conf low"></span></p>
+  <h3>실행 과제 표 — 누가·언제까지·무엇을</h3>
+  <table class="rk-table rk-actions">
+    <thead><tr><th>과제</th><th>담당(주관/협조)</th><th>기한</th><th>성공 지표</th><th>필요 자원</th></tr></thead>
+    <tbody>
+      <tr><td>4분기 단가 3% 인상 통보</td><td>영업본부 / 재무팀</td><td>2026.11.30</td><td>이익률 7.8% → 8.6%</td><td>—</td></tr>
+      <tr><td>원재료 장기계약 단가 재협상</td><td>구매팀</td><td>2026.12.15</td><td>원재료비 -2%</td><td>협상 TF 3명(4주)</td></tr>
+      <tr><td>이탈 위험 고객 2곳 개별 조건 제시</td><td>영업1팀</td><td>2026.11.20</td><td>이탈 0곳</td><td>할인 예산 1.2억원</td></tr>
+    </tbody>
+  </table>
+  <h3>판단을 바꿀 신호 — 이 선을 넘으면 재검토</h3>
+  <table class="rk-table rk-signals">
+    <thead><tr><th>지표</th><th>현재</th><th>임계값</th><th>넘으면</th></tr></thead>
+    <tbody>
+      <tr><td>주요 고객 이탈</td><td>0곳</td><td>2곳 이상</td><td>인상폭 1.5%로 조정</td></tr>
+      <tr><td>원재료 가격(톤당)</td><td>412만원</td><td>450만원</td><td>1분기 추가 인상 검토</td></tr>
+    </tbody>
+  </table>
+  <h3>예상 질문</h3>
+  <dl class="rk-faq">
+    <dt>인상 대신 원가 절감으로 대응할 수 없는가?</dt>
+    <dd>단기 원가 절감 여력은 연 8억원으로, 이익 감소분 24억원의 3분의 1 수준이다. 절감은 병행하되 단독 대안은 되지 못한다.</dd>
+    <dt>인상 시 점유율이 떨어지지 않는가?</dt>
+    <dd>경쟁사 2곳이 이미 2~4% 인상해 가격 격차는 오히려 줄어든다. 이탈 위험 고객 2곳은 개별 조건으로 관리한다.</dd>
+  </dl>
+  <p class="rk-sowhat">권고는 담당·기한·지표가 있는 과제로, 전망은 확신도와 재검토 조건을 함께 적는다</p>
 </section>
 
 <section class="rk-section rk-appendix">

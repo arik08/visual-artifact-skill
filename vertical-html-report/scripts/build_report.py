@@ -234,6 +234,8 @@ def build(src_path, out_path=None, theme=None, offline=False, font=None, palette
         import lint_report
         res = lint_report.lint_text(body, src_path)
         n_err = lint_report.print_report(res, quiet=quiet)
+        if not quiet:
+            lint_report.print_story(body)
     size = os.path.getsize(out_path)
     print(f"[OK] {out_path}  ({size/1024:.0f} KB, theme={theme}, palette={palette}, {'offline' if offline else 'CDN'})")
     if strict and n_err:
