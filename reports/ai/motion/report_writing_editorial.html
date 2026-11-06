@@ -52,7 +52,37 @@
   #play .seal { width: 170px; height: 170px; border-radius: 50%; border: 6px solid var(--red); color: var(--red); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 900; font-size: 46px; transform: rotate(-8deg); }
   #play .t { font-family: var(--serif); font-size: 26px; color: var(--ink2); }
   #play small { font-family: var(--serif); font-size: 18px; color: var(--faint); }
-  body.render #play { display: none; }
+  body.render #play, body.render #player { display: none; }
+  /* ── 동영상 플레이어 (종이 톤) ── */
+  #player { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; padding: 10px 28px 12px; background: #E6DECD; border-top: 1px solid #C9BFAB; font-family: var(--serif); color: #1D1B18; user-select: none; transition: opacity .25s, transform .25s; }
+  #bar { display: flex; align-items: center; gap: 16px; height: 40px; }
+  #bar button { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #1D1B18; color: #F3EEE3; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  #bar button svg { width: 18px; height: 18px; fill: currentColor; }
+  #bar #fs { background: transparent; color: #1D1B18; border: 1px solid #8E877A; width: 36px; height: 36px; }
+  .time { flex: none; font-size: 15px; font-variant-numeric: tabular-nums; color: #4A463F; min-width: 44px; text-align: center; }
+  #seek { position: relative; flex: 1; height: 28px; cursor: pointer; }
+  #seek .track { position: absolute; left: 0; right: 0; top: 12px; height: 4px; background: #CFC5B2; border-radius: 2px; }
+  #seek .fill { position: absolute; left: 0; top: 12px; height: 4px; width: 0; background: #D3262E; border-radius: 2px; }
+  #seek .knob { position: absolute; top: 6px; width: 16px; height: 16px; margin-left: -8px; left: 0; border-radius: 50%; background: #D3262E; box-shadow: 0 0 0 3px #F3EEE3; }
+  #seek .tk { position: absolute; top: 9px; width: 2px; height: 10px; background: #8E877A; }
+  #seek .tip { position: absolute; bottom: 30px; transform: translateX(-50%); padding: 4px 10px; border-radius: 6px; background: #1D1B18; color: #F3EEE3; font-size: 14px; white-space: nowrap; opacity: 0; pointer-events: none; }
+  #seek:hover .tip { opacity: 1; }
+  #seek:hover .track, #seek:hover .fill { height: 6px; top: 11px; }
+  #chapters { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
+  #chapters button { flex: 1 1 0; min-width: 0; padding: 5px 6px 6px; border: 1px solid #C9BFAB; border-radius: 6px; background: #F3EEE3; font-family: var(--serif); font-size: 14px; line-height: 1.25; color: #4A463F; cursor: pointer; text-align: center; word-break: keep-all; }
+  #chapters button b { display: block; color: #D3262E; font-weight: 900; font-size: 12px; font-variant-numeric: tabular-nums; }
+  #chapters button:hover { background: #FBF8F1; border-color: #8E877A; }
+  #chapters button.on { background: #1D1B18; color: #F3EEE3; border-color: #1D1B18; }
+  #chapters button.on b { color: #FF8A8F; }
+  /* 전체화면: 바로가기 숨김, 재생 막대는 마우스를 아래로 내리면 영상 위에 */
+  body.fs #chapters { display: none; }
+  body.fs #player { background: linear-gradient(transparent, rgba(29,27,24,.78) 45%); border-top: 0; padding: 40px 36px 18px; color: #F3EEE3; opacity: 0; transform: translateY(16px); pointer-events: none; }
+  body.fs.ctl #player { opacity: 1; transform: none; pointer-events: auto; }
+  body.fs .time { color: #E6DECD; }
+  body.fs #bar button { background: #F3EEE3; color: #1D1B18; }
+  body.fs #bar #fs { background: transparent; color: #F3EEE3; border-color: rgba(243,238,227,.6); }
+  body.fs #seek .track { background: rgba(243,238,227,.35); }
+  body.fs.idle { cursor: none; }
 </style>
 </head>
 <body>
@@ -64,7 +94,17 @@
   <div id="folio">— <span id="pg">1</span> —</div>
   <div id="scenes"></div>
   <svg id="grain" width="1920" height="1080"><filter id="nz"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .22 0"/></filter><rect width="1920" height="1080" filter="url(#nz)"/></svg>
-  <div id="play"><div class="seal">재생</div><div class="t">클릭하면 시작 · 3분 · 소리를 켜 주세요</div><small>Space 일시정지 · 우클릭 전체화면</small></div>
+  <div id="play"><div class="seal">재생</div><div class="t">클릭하면 시작 · 3분 · 소리를 켜 주세요</div><small>Space 재생/일시정지 · ←/→ 5초 이동 · 우클릭 전체화면</small></div>
+</div>
+<div id="player">
+  <div id="bar">
+    <button id="pp" title="재생/일시정지 (Space)"></button>
+    <span class="time" id="tnow">0:00</span>
+    <div id="seek"><div class="track"></div><div class="fill"></div><div class="knob"></div><div class="tip"></div></div>
+    <span class="time" id="tdur">3:00</span>
+    <button id="fs" title="전체화면 (우클릭)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3H4zm11-5h5v5h-2V6h-3V4zM4 15h2v3h3v2H4v-5zm14 3v-3h2v5h-5v-2h3z"/></svg></button>
+  </div>
+  <div id="chapters"></div>
 </div>
 
 <script>
@@ -73,7 +113,12 @@
   var R = location.search.indexOf('render') >= 0;
   if (R) document.body.classList.add('render');
   var stage = document.getElementById('stage');
-  function fit() { if (R) return; var s = Math.min(innerWidth / W, innerHeight / H); stage.style.transform = 'scale(' + s + ')'; }
+  function fit() {
+    if (R) return;
+    var fs = !!document.fullscreenElement, ph = fs ? 0 : (document.getElementById('player') || { offsetHeight: 0 }).offsetHeight;
+    var s = Math.min(innerWidth / W, (innerHeight - ph) / H);
+    stage.style.transform = 'translateY(' + (-ph / 2) + 'px) scale(' + s + ')';
+  }
   addEventListener('resize', fit); fit();
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var root = $('#scenes'), NS = 'http://www.w3.org/2000/svg';
@@ -344,7 +389,9 @@
   /* ================= 음악: 84 BPM 로파이 재즈 (Tone.js) ================= */
   var audioReady = null;
   function buildMusic() {
-    var T = Tone.Transport; T.bpm.value = BPM; T.cancel(0);
+    var TT = Tone.Transport; TT.bpm.value = BPM; TT.cancel(0);
+    // 구간 이동 시 단음 악기 예약 충돌이 나도 재생이 멈추지 않도록 콜백을 감싼다
+    var T = { schedule: function (fn, t) { return TT.schedule(function (time) { try { fn(time); } catch (e) { /* 이동 직후 예약 겹침 무시 */ } }, t); } };
     var limiter = new Tone.Limiter(-1).toDestination();
     var comp = new Tone.Compressor({ threshold: -20, ratio: 2.5, attack: 0.015, release: 0.25 }).connect(limiter);
     var tape = new Tone.Filter({ frequency: 7200, type: 'lowpass', rolloff: -12 }).connect(comp); // 로파이 고역 감쇠
@@ -422,24 +469,96 @@
     return Tone.loaded();
   }
 
-  var playing = false;
+  /* ================= 동영상 플레이어 ================= */
+  var playing = false, pos0 = 0, busy = false;
   window.__seek = function (t) { tl.seek(t, false); };
   window.__duration = DUR;
   window.__ready = document.fonts.ready.then(function () { tl.seek(0); return true; });
-  gsap.ticker.add(function () { if (playing) { var t = Tone.Transport.seconds; tl.seek(Math.min(t, DUR), false); if (t >= DUR) { playing = false; Tone.Transport.stop(); } } });
-  async function start() {
-    $('#play').style.display = 'none';
+  function now() { return playing ? Math.min(Tone.Transport.seconds, DUR) : pos0; }
+  function fmtT(t) { t = Math.max(0, Math.floor(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  var ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>', ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg>';
+  function setIcon() { $('#pp').innerHTML = playing ? ICON_PAUSE : ICON_PLAY; }
+  async function ensureAudio() {
     await Tone.start();
     if (!audioReady) audioReady = buildMusic();
     await audioReady;
-    Tone.Destination.volume.value = 0; Tone.Transport.seconds = 0; Tone.Transport.start('+0.05'); playing = true;
   }
+  async function play() {
+    if (busy) return; busy = true;
+    $('#play').style.display = 'none';
+    if (pos0 >= DUR - 0.05) pos0 = 0; // 끝까지 봤으면 처음부터
+    await ensureAudio();
+    var dv = Tone.Destination.volume; dv.cancelScheduledValues(Tone.now()); dv.value = 0;
+    Tone.Transport.seconds = pos0; Tone.Transport.start('+0.05');
+    playing = true; busy = false; setIcon();
+  }
+  function pause() { if (!playing) return; pos0 = Math.min(Tone.Transport.seconds, DUR); Tone.Transport.pause(); playing = false; setIcon(); }
+  function toggle() { if (playing) pause(); else play(); }
+  function seekTo(t) {
+    t = Math.max(0, Math.min(DUR, t));
+    var was = playing;
+    if (was) { Tone.Transport.pause(); playing = false; }
+    pos0 = t; tl.seek(t, false); paintUI(t);
+    if (was) { busy = true; setTimeout(function () { busy = false; play(); }, 140); } // 예약 큐가 비워진 뒤 재개
+  }
+  window.__player = { play: play, pause: pause, seekTo: seekTo };
+  gsap.ticker.add(function () {
+    if (playing) { var t = Tone.Transport.seconds; tl.seek(Math.min(t, DUR), false); if (t >= DUR) { pos0 = DUR; Tone.Transport.pause(); playing = false; setIcon(); } }
+    if (!R) paintUI(now());
+  });
+  // 장(章) 바로가기
+  var chapBtns = [];
+  function paintUI(t) {
+    if (dragging) return;
+    var p = t / DUR * 100;
+    $('#seek .fill').style.width = p + '%'; $('#seek .knob').style.left = p + '%'; $('#tnow').textContent = fmtT(t);
+    var cur = 0; SEC.forEach(function (s, i) { if (t >= B(s[0]) - 0.01) cur = i; });
+    chapBtns.forEach(function (b, i) { b.classList.toggle('on', i === cur); });
+  }
+  var dragging = false;
   if (!R) {
-    $('#play').addEventListener('click', start);
-    addEventListener('keydown', function (e) { if (e.code !== 'Space') return; e.preventDefault();
-      if (Tone.Transport.state === 'started') { Tone.Transport.pause(); playing = false; } else if (audioReady) { Tone.Transport.start(); playing = true; } });
-    addEventListener('contextmenu', function (e) { if (e.shiftKey || e.ctrlKey) return; e.preventDefault();
-      if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); });
+    $('#tdur').textContent = fmtT(DUR); setIcon();
+    SEC.forEach(function (s, i) {
+      var SHORT = ['서문', '명제', '결론부터', '숫자 다이어트', '안 읽히는 것', '사실·판단·권고', '실행으로', '디자인은 키트', '검증 자동화', '결재'];
+      var b = el('button', '', '<b>' + fmtT(B(s[0])) + '</b>' + SHORT[i], $('#chapters'));
+      b.title = s[1] + ' (' + fmtT(B(s[0])) + ')';
+      b.addEventListener('click', function () { seekTo(B(s[0]) + 0.01); });
+      chapBtns.push(b);
+      if (i) { var tk = el('div', 'tk', '', $('#seek')); tk.style.left = (B(s[0]) / DUR * 100) + '%'; }
+    });
+    var seek = $('#seek'), tip = $('#seek .tip');
+    function tAt(e) { var r = seek.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * DUR; }
+    function chapAt(t) { var n = SEC[0][1]; SEC.forEach(function (s) { if (t >= B(s[0])) n = s[1]; }); return n; }
+    seek.addEventListener('pointermove', function (e) { var t = tAt(e); tip.textContent = fmtT(t) + ' · ' + chapAt(t); tip.style.left = (t / DUR * 100) + '%';
+      if (dragging) { var p = t / DUR * 100; $('#seek .fill').style.width = p + '%'; $('#seek .knob').style.left = p + '%'; $('#tnow').textContent = fmtT(t); tl.seek(t, false); } });
+    seek.addEventListener('pointerdown', function (e) { dragging = true; seek.setPointerCapture(e.pointerId); var t = tAt(e); tl.seek(t, false); });
+    seek.addEventListener('pointerup', function (e) { if (!dragging) return; dragging = false; seekTo(tAt(e)); });
+    $('#pp').addEventListener('click', toggle);
+    $('#play').addEventListener('click', play);
+    stage.addEventListener('click', function (e) { if (e.target.closest('#play')) return; if (audioReady || playing) toggle(); });
+    function toggleFs() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+    $('#fs').addEventListener('click', toggleFs);
+    addEventListener('contextmenu', function (e) { if (e.shiftKey || e.ctrlKey) return; e.preventDefault(); toggleFs(); });
+    addEventListener('keydown', function (e) {
+      if (e.code === 'Space') { e.preventDefault(); toggle(); }
+      else if (e.code === 'ArrowRight') { e.preventDefault(); seekTo(now() + 5); }
+      else if (e.code === 'ArrowLeft') { e.preventDefault(); seekTo(now() - 5); }
+      else if (e.code === 'Home') { e.preventDefault(); seekTo(0); }
+      else if (e.code === 'KeyF') { toggleFs(); }
+    });
+    // 전체화면: 바로가기 숨김, 마우스를 화면 아래쪽으로 내리면 재생 막대 표시
+    var hideT = null;
+    function showCtl(on) { document.body.classList.toggle('ctl', on); }
+    document.addEventListener('fullscreenchange', function () { document.body.classList.toggle('fs', !!document.fullscreenElement); showCtl(false); fit(); });
+    addEventListener('mousemove', function (e) {
+      if (!document.fullscreenElement) return;
+      document.body.classList.remove('idle');
+      var nearBottom = e.clientY > innerHeight - 150 || e.target.closest('#player');
+      showCtl(!!nearBottom);
+      clearTimeout(hideT);
+      hideT = setTimeout(function () { if (!dragging && !document.querySelector('#player:hover')) { showCtl(false); document.body.classList.add('idle'); } }, 2200);
+    });
+    fit();
     tl.seek(0);
   }
 })();

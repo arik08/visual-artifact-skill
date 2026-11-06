@@ -27,7 +27,7 @@ const ev = async (x) => (await send('Runtime.evaluate', { expression: x, awaitPr
 await send('Runtime.enable'); await send('Page.enable');
 await send('Page.navigate', { url: pathToFileURL(join(here, file)).href }); await sleep(2500);
 await ev("document.getElementById('play').click(); true");
-if (process.argv[4]) { await sleep(1500); await ev(`Tone.Transport.seconds = ${Number(process.argv[4])}; true`); }
+if (process.argv[4]) { await sleep(1500); await ev(`(window.__player ? __player.seekTo(${Number(process.argv[4])}) : (Tone.Transport.seconds = ${Number(process.argv[4])}), true)`); await sleep(400); }
 await sleep(secs * 1000);
 const st = await ev(`({ ctx: Tone.context.state, transport: Tone.Transport.state, audioSec: +Tone.Transport.seconds.toFixed(2), timelineSec: +__tl.time().toFixed(2) })`);
 await ev('Tone.Transport.stop(); true');
