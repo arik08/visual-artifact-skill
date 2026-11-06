@@ -1,0 +1,139 @@
+<!--
+title: 차세대 ERP 구축 프로젝트 진척 보고
+theme: blue
+-->
+<!-- ✎ 템플릿: 프로젝트 진척·운영 현황 보고. 예시 수치·일정은 실제로 교체하고 "sample": true 를 지울 것 -->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">프로젝트 진척 보고</span><span class="rk-badge warn">주의</span></div>
+  <h1>차세대 ERP 구축 프로젝트 진척 보고 (11월 1주)</h1>
+  <p class="rk-cover-sub">공정률 72%로 계획 대비 8%p 지연, 추가 인력 투입 시 오픈일(2027.3.2) 유지 가능</p>
+  <ul class="rk-cover-stats">
+    <li><b>72<small>%</small></b><span>공정률 (계획 80%)</span></li>
+    <li><b>64<small>%</small></b><span>예산 집행률</span></li>
+    <li><b>116<small>일</small></b><span>오픈까지 (2027.03.02)</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>2026.11.06</dd></div>
+    <div><dt>작성</dt><dd>PMO</dd></div>
+    <div><dt>보고 대상</dt><dd>IT 운영위원회</dd></div>
+  </dl>
+</header>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">연계 개발 2주 지연으로 공정률 72%(계획 80%) — 개발 인력 2명 추가 시 12월 내 만회, 오픈 일정 영향 없음</p>
+  <ol class="rk-keypoints">
+    <li><strong>공정률 72%, 계획 대비 -8%p</strong> — 외부 기관 API 사양 변경(10/28 통보)이 원인</li>
+    <li><strong>예산 집행 64%, 계획(70%) 이내</strong> — 추가 인력 비용 1.2억원은 예비비로 충당 가능</li>
+    <li><strong>위험 이슈 1건, 주의 2건</strong> — 테스트 환경 부족은 11/15 해소 예정</li>
+  </ol>
+  <div class="rk-kpis"><script type="application/json">
+  [
+    {"label": "공정률", "value": 72, "unit": "%", "delta": "-8%p", "deltaLabel": "계획 대비", "status": "warn", "progress": 90},
+    {"label": "예산 집행률", "value": 64, "unit": "%", "note": "집행 32억원 / 총 50억원", "status": "good"},
+    {"label": "미해결 이슈", "value": 3, "unit": "건", "note": "위험 1 · 주의 2", "status": "bad"},
+    {"label": "오픈까지", "value": 116, "unit": "일", "note": "2027.03.02 예정"}
+  ]
+  </script></div>
+  <div class="rk-ask"><b>요청사항</b>개발 인력 2명 추가 투입(1.2억원, 예비비) 승인 요청 — 11/10까지</div>
+</section>
+
+<section class="rk-section">
+  <h2>추진 일정</h2>
+  <p class="rk-lead">연계 개발 2주 지연, 통합 테스트 시작일 조정 없이 만회 가능</p>
+  <p>외부 기관이 10월 말 API 사양을 바꾸면서 연계 개발 착수가 2주 늦어졌다. 다만 통합 테스트 전까지 4주의 여유 기간이 있어, 개발 인력 2명을 추가로 투입하면 일정 손실을 흡수할 수 있다. 인력 투입 결정이 늦어질수록 여유 기간이 줄어든다는 점이 핵심 변수다.</p>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "gantt",
+    "title": "연계 개발 2주 지연, 오픈일(3/2)은 유지 가능",
+    "subtitle": "단계별 일정과 진척률",
+    "today": "2026-11-06",
+    "tasks": [
+      {"name": "요구사항 정의", "start": "2026-09-01", "end": "2026-09-30", "group": "분석·설계", "progress": 100},
+      {"name": "아키텍처 설계", "start": "2026-09-22", "end": "2026-10-24", "group": "분석·설계", "progress": 100},
+      {"name": "핵심 모듈 개발", "start": "2026-10-13", "end": "2026-12-19", "group": "개발", "progress": 45},
+      {"name": "외부 연계 개발", "start": "2026-11-10", "end": "2027-01-16", "group": "개발", "progress": 10},
+      {"name": "통합 테스트", "start": "2027-01-12", "end": "2027-02-13", "group": "테스트·오픈"},
+      {"name": "사용자 교육", "start": "2027-02-09", "end": "2027-02-27", "group": "테스트·오픈"},
+      {"name": "오픈", "start": "2027-03-02", "milestone": true, "group": "테스트·오픈"}
+    ],
+    "source": "PMO 주간보고 (2026.11.06)", "sample": true
+  }
+  </script></div>
+  <h3>추진 경과</h3>
+  <ol class="rk-timeline">
+    <li class="done"><time>2026.09.30</time><b>요구사항 정의 완료</b><p>요구사항 412건 확정</p></li>
+    <li class="done"><time>2026.10.24</time><b>아키텍처 설계 완료</b><p>설계 검토위원회 승인</p></li>
+    <li class="now"><time>2026.11.06</time><b>핵심 모듈 개발 중 (45%)</b><p>회계·구매 모듈 우선 개발</p></li>
+    <li><time>2027.01.12</time><b>통합 테스트 착수</b><p>테스트 시나리오 280건</p></li>
+  </ol>
+</section>
+
+<section class="rk-section">
+  <h2>예산·자원</h2>
+  <p class="rk-lead">예산 집행 64%로 계획 이내, 인력 투입률은 개발 단계에서 95%</p>
+  <p>전체 예산은 계획 범위 안에서 집행되고 있으나 외주 용역비는 계획을 소폭 웃돌고 있다. 추가 인력 비용은 예비비로 충당할 수 있어 총 예산 증액은 필요하지 않다.</p>
+  <div class="rk-grid">
+    <div class="rk-card">
+      <div class="rk-card-title">집행 현황</div>
+      <div class="rk-progress" data-label="전체 예산 집행" data-value="64" data-target="70"></div>
+      <div class="rk-progress" data-label="외주 용역비" data-value="71" data-target="70"></div>
+      <div class="rk-progress" data-label="H/W·S/W" data-value="58" data-target="65"></div>
+    </div>
+    <div class="rk-card">
+      <div class="rk-card-title">인력 현황</div>
+      <div class="rk-progress" data-label="개발 인력 투입" data-value="19" data-max="20" data-unit="명"></div>
+      <div class="rk-progress" data-label="현업 참여 (FTE)" data-value="6.5" data-max="8" data-unit="명"></div>
+      <p class="rk-note">추가 인력 2명 투입 시 개발 인력 21명</p>
+    </div>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>이슈 및 리스크</h2>
+  <p class="rk-lead">위험 1건(연계 지연)은 인력 추가로 대응, 주의 2건은 이번 달 내 해소 예정</p>
+  <p>미해결 이슈 3건 가운데 일정에 직접 영향을 주는 것은 연계 지연 1건이다. 테스트 환경 부족과 요구사항 추가 요청은 이번 달 안에 해소 절차가 잡혀 있어 일정 위험은 제한적이다.</p>
+  <div class="rk-tablejs"><script type="application/json">
+  {
+    "title": "미해결 이슈 3건 — 위험 1건은 인력 추가 승인이 필요",
+    "columns": [
+      {"key": "id", "label": "No"},
+      {"key": "issue", "label": "이슈"},
+      {"key": "impact", "label": "영향"},
+      {"key": "action", "label": "대응"},
+      {"key": "due", "label": "기한"},
+      {"key": "status", "label": "상태", "type": "badge"}
+    ],
+    "rows": [
+      {"id": "1", "issue": "외부 기관 API 사양 변경", "impact": "연계 개발 2주 지연", "action": "개발 인력 2명 추가", "due": "12/19", "status": "위험"},
+      {"id": "2", "issue": "테스트 환경 부족", "impact": "단위 테스트 병목", "action": "클라우드 계정 추가 확보", "due": "11/15", "status": "주의"},
+      {"id": "3", "issue": "현업 요구사항 추가 요청 14건", "impact": "범위 증가", "action": "변경관리위원회 심의", "due": "11/20", "status": "주의"}
+    ],
+    "source": "PMO 이슈 관리대장", "sample": true
+  }
+  </script></div>
+  <p class="rk-sowhat">인력 추가 승인이 11/10을 넘기면 오픈 일정 1주 지연 불가피</p>
+</section>
+
+<section class="rk-section">
+  <h2>향후 계획</h2>
+  <p class="rk-lead">11월은 핵심 모듈 개발 70% 달성과 연계 개발 착수에 집중</p>
+  <p>11월 목표는 핵심 모듈 개발률을 70%까지 끌어올리고 연계 개발을 정상 궤도에 올리는 것이다. 12월 초 운영위원회에서 중간 점검을 통해 오픈 일정 유지 여부를 최종 확인한다.</p>
+  <ol class="rk-steps">
+    <li class="now"><b>인력 추가 투입</b><span>11/10 승인 → 11/17 투입</span></li>
+    <li><b>연계 개발 착수</b><span>11/10~</span></li>
+    <li><b>핵심 모듈 70%</b><span>11/30 목표</span></li>
+    <li><b>중간 점검</b><span>12/05 운영위</span></li>
+  </ol>
+  <div class="rk-decision">
+    <h3>의사결정 요청 사항</h3>
+    <ol>
+      <li><b>개발 인력 2명 추가 투입(1.2억원, 예비비 집행) 승인</b> — 결정 기한 11/10</li>
+    </ol>
+  </div>
+</section>
+
+<div class="rk-footnotes">
+  <ol><li>상태 기준: 일정 지연 1주 이내 = 주의, 2주 이상 = 위험.</li><li>공정률은 WBS 가중치 기준.</li></ol>
+</div>
+<footer class="rk-footer"><span>PMO</span><span>차세대 ERP 구축 프로젝트</span></footer>

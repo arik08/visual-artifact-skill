@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.png
+*.pdf
+vertical-html-report/assets/vendor/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,166 @@
+<!--
+title: 정산 업무 자동화 추진(안)
+theme: navy
+-->
+<!-- ✎ 템플릿: 기획·제안 / 의사결정 요청. 예시 수치는 실제로 교체하고 "sample": true 를 지울 것 -->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">기획 · 의사결정 요청</span></div>
+  <h1>정산 업무 자동화 추진(안)</h1>
+  <p class="rk-cover-sub">4.2억원 투자로 월 정산 기간 5일→1일 단축, 연간 3.1억원 절감(회수 1.4년)</p>
+  <ul class="rk-cover-stats">
+    <li><b>4.2<small>억원</small></b><span>투자 금액</span></li>
+    <li><b>3.1<small>억원</small></b><span>연간 절감</span></li>
+    <li><b>1.4<small>년</small></b><span>투자 회수 기간</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>2026.11.06</dd></div>
+    <div><dt>작성</dt><dd>재무혁신 TF</dd></div>
+    <div><dt>보고 대상</dt><dd>CFO</dd></div>
+  </dl>
+</header>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">수작업 정산으로 월 5일·연 3.1억원의 비용이 발생 — RPA+정산 시스템 연계(안 B)로 1.4년 내 투자 회수 가능</p>
+  <ol class="rk-keypoints">
+    <li><strong>현재 정산에 월 5일, 연 3.1억원 소요</strong> — 엑셀 수작업 단계가 전체 시간의 68%</li>
+    <li><strong>3개 대안 중 안 B(RPA+시스템 연계) 권고</strong> — 투자 4.2억원, 효과 대비 리스크 최소</li>
+    <li><strong>2027년 1월 착수, 6월 전사 적용</strong> — 재무팀 시범 운영 후 확산</li>
+  </ol>
+  <div class="rk-kpis"><script type="application/json">
+  [
+    {"label": "투자 금액", "value": 4.2, "unit": "억원", "note": "구축 3.5억원 + 운영 0.7억원(1년)"},
+    {"label": "연간 절감", "value": 3.1, "unit": "억원", "note": "인건비·외주비 기준", "status": "good"},
+    {"label": "투자 회수", "value": 1.4, "unit": "년"},
+    {"label": "정산 기간", "value": "5→1", "unit": "일", "delta": "-80%", "good": "down", "deltaLabel": "현행 대비"}
+  ]
+  </script></div>
+  <div class="rk-ask"><b>요청사항</b>안 B 추진 및 2027년 예산 4.2억원 반영 승인 — 11/20 경영회의</div>
+</section>
+
+<section class="rk-section">
+  <h2>추진 배경</h2>
+  <p class="rk-lead">거래량이 3년간 46% 늘어 수작업 정산의 한계 도달 — 마감 지연 연 7회</p>
+  <p>월평균 거래량은 3년 만에 12.4만 건에서 18.1만 건으로 늘었지만 정산 인력과 방식은 그대로였다. 그 결과 마감 지연이 연 1회에서 7회로 늘었고, 지연될 때마다 경영 보고와 세무 신고 일정이 함께 밀렸다. 거래량이 지금 추세로 늘면 현 체계로는 내년 처리 물량을 감당하기 어렵다.</p>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "combo",
+    "title": "거래량 3년간 +46%, 마감 지연은 연 1회 → 7회로 증가",
+    "unit": "만 건", "unit2": "회",
+    "categories": ["2023", "2024", "2025", "2026(E)"],
+    "series": [
+      {"name": "월평균 거래량", "as": "bar", "data": [12.4, 14.8, 16.5, 18.1]},
+      {"name": "마감 지연 횟수", "as": "line", "axis": "right", "data": [1, 3, 5, 7]}
+    ],
+    "source": "재무팀 정산 대장", "sample": true
+  }
+  </script></div>
+  <p class="rk-sowhat">현 인력 구조로는 2027년 거래량(추정 20만 건) 처리 불가</p>
+</section>
+
+<section class="rk-section">
+  <h2>현황 및 문제점</h2>
+  <p class="rk-lead">정산 5일 중 3.4일(68%)이 엑셀 대사·검증 수작업</p>
+  <p>정산 7단계 가운데 4단계가 엑셀 수작업으로 이루어지며, 특히 대사·검증과 취합에 시간이 집중된다. 수작업 단계가 많을수록 오류 수정과 재작업도 늘어나, 문제의 핵심은 인력 부족보다 프로세스 구조에 있다.</p>
+  <div class="rk-diagram" data-title="현행 정산 프로세스 — 7단계 중 4단계가 수작업" data-source="재무팀 업무 분석">
+    <script type="text/x-mermaid">
+    flowchart LR
+      A["거래 데이터 추출"] --> B["엑셀 취합"]:::bad
+      B --> C["대사·검증"]:::bad
+      C --> D{"차이 발생?"}
+      D -- "예" --> E["수기 조정"]:::bad
+      D -- "아니오" --> F["전표 생성"]
+      E --> F
+      F --> G["승인·마감"]
+    </script>
+  </div>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "pareto",
+    "title": "정산 소요시간의 81%가 상위 3개 작업에 집중",
+    "subtitle": "작업별 월 소요시간", "unit": "시간", "name": "소요시간",
+    "items": [
+      {"name": "대사·검증", "value": 62}, {"name": "엑셀 취합", "value": 41}, {"name": "수기 조정", "value": 27},
+      {"name": "전표 생성", "value": 18}, {"name": "승인·마감", "value": 12}
+    ],
+    "source": "업무 시간 측정 (2026.09)", "sample": true
+  }
+  </script></div>
+</section>
+
+<section class="rk-section">
+  <h2>대안 비교</h2>
+  <p class="rk-lead">안 B가 투자 대비 효과가 가장 크고 구축 리스크가 낮음</p>
+  <p>인력 충원(안 A)은 당장의 지연은 줄이지만 거래량이 늘면 다시 충원이 필요해 근본 해결책이 아니다. 모듈 교체(안 C)는 효과가 가장 크지만 구축에 12개월이 걸리고 투자 회수에 3년이 필요하다. 안 B는 효과의 80% 수준을 3분의 1 비용으로 얻을 수 있어 가장 균형 잡힌 선택이다.</p>
+  <table class="rk-table">
+    <thead><tr><th>구분</th><th>안 A: 인력 충원</th><th class="rk-rec">안 B: RPA + 시스템 연계 (권고)</th><th>안 C: ERP 정산 모듈 교체</th></tr></thead>
+    <tbody>
+      <tr><th>투자</th><td>연 2.4억원(3명)</td><td class="rk-rec">4.2억원</td><td>11.5억원</td></tr>
+      <tr><th>연간 효과</th><td>지연 해소, 비용 절감 없음</td><td class="rk-rec">3.1억원 절감, 5일→1일</td><td>3.8억원 절감, 5일→0.5일</td></tr>
+      <tr><th>투자 회수</th><td>해당 없음</td><td class="rk-rec">1.4년</td><td>3.0년</td></tr>
+      <tr><th>리스크</th><td><span class="rk-badge warn">중</span> 거래 증가 시 재충원</td><td class="rk-rec"><span class="rk-badge good">낮음</span> 단계 적용 가능</td><td><span class="rk-badge bad">높음</span> 12개월 구축</td></tr>
+    </tbody>
+  </table>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "scatter",
+    "title": "안 B가 '고효과·저난이도' 영역에 위치",
+    "xName": "실행 난이도", "xUnit": "점", "yName": "연간 효과", "yUnit": "억원", "sizeName": "투자", "sizeUnit": "억원",
+    "points": [
+      {"name": "안 A 인력 충원", "x": 2, "y": 0.5, "size": 2.4},
+      {"name": "안 B RPA+연계", "x": 4, "y": 3.1, "size": 4.2},
+      {"name": "안 C 모듈 교체", "x": 8, "y": 3.8, "size": 11.5}
+    ],
+    "quadrant": {"x": 5, "y": 2, "labels": ["우선 추진", "전략 검토", "보류", "비효율"], "highlight": 0},
+    "highlight": ["안 B RPA+연계"],
+    "source": "TF 평가 (난이도 10점 척도)", "sample": true
+  }
+  </script></div>
+</section>
+
+<section class="rk-section">
+  <h2>추진 방안 및 기대 효과</h2>
+  <p class="rk-lead">대사·검증을 자동화해 수작업 4단계를 1단계로 축소</p>
+  <p>RPA가 거래 데이터 추출과 취합을, 시스템 연계가 대사·검증을 맡으면 사람은 예외 건 조정만 처리하게 된다. 절감 효과의 절반 이상이 대사 자동화에서 나오므로, 구축 순서도 대사 기능을 먼저 적용하는 것이 효과적이다.</p>
+  <div class="rk-compare">
+    <div><div class="rk-compare-head">As-Is (현재)</div><ul><li>정산 기간 월 5일</li><li>수작업 4단계, 엑셀 31개 파일</li><li>마감 지연 연 7회</li></ul></div>
+    <div><div class="rk-compare-head">To-Be (개선 후)</div><ul><li>정산 기간 월 1일</li><li>수작업 1단계(예외 조정만)</li><li>마감 지연 0회 목표</li></ul></div>
+  </div>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "waterfall",
+    "title": "연간 절감 3.1억원 중 대사 자동화 효과가 1.6억원",
+    "subtitle": "절감 효과 분해", "unit": "억원",
+    "items": [
+      {"name": "대사 자동화", "value": 1.6}, {"name": "취합 자동화", "value": 0.9},
+      {"name": "외주 검증비 절감", "value": 0.8}, {"name": "운영비 증가", "value": -0.2},
+      {"name": "연간 순절감", "total": true}
+    ],
+    "source": "TF 산정 (부록 산식 참조)", "sample": true
+  }
+  </script></div>
+  <h3>추진 일정</h3>
+  <ol class="rk-steps">
+    <li><b>상세 설계</b><span>'27.1월</span></li>
+    <li><b>RPA·연계 구축</b><span>'27.2~4월</span></li>
+    <li><b>재무팀 시범</b><span>'27.5월</span></li>
+    <li><b>전사 적용</b><span>'27.6월</span></li>
+  </ol>
+  <div class="rk-callout rk-warn"><strong>리스크와 대응</strong>은행 연계 API 승인 지연 가능(2~4주) → 1월 중 사전 신청, 지연 시 파일 연계로 우회</div>
+</section>
+
+<div class="rk-decision">
+  <h3>의사결정 요청 사항</h3>
+  <ol>
+    <li><b>안 B(RPA + 시스템 연계) 추진 승인</b> — 11/20 경영회의</li>
+    <li><b>2027년 예산 4.2억원 반영</b> — 미반영 시 2027년 상반기 마감 지연 월 1회 이상 예상</li>
+  </ol>
+</div>
+
+<section class="rk-section rk-appendix">
+  <h2>효과 산정 기준</h2>
+  <ul>
+    <li>인건비 절감 = 절감 시간(월 104시간) × 12개월 × 시간당 인건비 4.3만원 ≈ 0.5억원 …(산식 예시)</li>
+  </ul>
+</section>
+<footer class="rk-footer"><span>재무혁신 TF</span><span>문의: 내선 0000</span></footer>

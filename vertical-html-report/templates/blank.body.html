@@ -1,0 +1,62 @@
+<!--
+title: 보고서 제목
+theme: navy
+-->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">보고서 유형</span></div>
+  <h1>보고서 제목</h1>
+  <p class="rk-cover-sub">한 줄 결론 (숫자 포함)</p>
+  <ul class="rk-cover-stats">
+    <li><b>0</b><span>핵심 수치 1 (선택)</span></li>
+    <li><b>0</b><span>핵심 수치 2</span></li>
+    <li><b>0</b><span>핵심 수치 3</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>YYYY.MM.DD</dd></div>
+    <div><dt>작성</dt><dd>부서 · 작성자</dd></div>
+    <div><dt>보고 대상</dt><dd>대상</dd></div>
+  </dl>
+</header>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">결론 한 문장 (숫자 포함)</p>
+  <ol class="rk-keypoints">
+    <li><strong>핵심 메시지 1</strong> — 근거</li>
+    <li><strong>핵심 메시지 2</strong> — 근거</li>
+    <li><strong>핵심 메시지 3</strong> — 근거</li>
+  </ol>
+  <div class="rk-kpis"><script type="application/json">
+  [
+    {"label": "지표 1", "value": 0, "unit": "", "delta": "+0%", "deltaLabel": "비교 기준"},
+    {"label": "지표 2", "value": 0, "unit": ""},
+    {"label": "지표 3", "value": 0, "unit": ""}
+  ]
+  </script></div>
+  <div class="rk-ask"><b>요청사항</b>결정·협조가 필요한 사항과 기한</div>
+</section>
+
+<section class="rk-section">
+  <h2>섹션 제목</h2>
+  <p class="rk-lead">이 섹션의 결론 (숫자 포함)</p>
+  <p>해설 단락 2~4문장: 무엇이 일어났는지(숫자), 왜 그런지(원인·배경), 그래서 무엇을 의미하는지(영향·판단 포인트)를 평서문으로 설명한다. 차트를 그대로 읽어주는 문장은 쓰지 않는다.</p>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "bar",
+    "title": "결론형 차트 제목",
+    "subtitle": "주제·기간",
+    "unit": "단위",
+    "categories": ["A", "B", "C"],
+    "series": [{"name": "계열", "data": [10, 20, 30]}],
+    "highlight": "C",
+    "source": "출처 (기준일)",
+    "sample": true
+  }
+  </script></div>
+  <ul class="rk-gae">
+    <li>세부 내용 (개조식)
+      <ul><li>하위 내용</li></ul>
+    </li>
+  </ul>
+  <p class="rk-sowhat">시사점 또는 다음 조치</p>
+</section>

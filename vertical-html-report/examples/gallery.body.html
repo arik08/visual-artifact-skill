@@ -1,0 +1,605 @@
+<!--
+title: 컴포넌트·차트 갤러리 (report-kit)
+theme: navy
+-->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">컴포넌트 갤러리</span><span class="rk-badge secret">대외비</span></div>
+  <h1>report-kit 컴포넌트 · 차트 갤러리</h1>
+  <p class="rk-cover-sub">모든 구성요소의 사용 예시 — 복사해서 데이터만 바꿔 쓰면 됨 (수치는 모두 가상의 예시)</p>
+  <ul class="rk-cover-stats">
+    <li><b>1,820<small>억원</small></b><span>3분기 매출 (목표 101%)</span></li>
+    <li><b>142<small>억원</small></b><span>영업이익 (-8.4%)</span></li>
+    <li><b>7.8<small>%</small></b><span>영업이익률 (-1.1%p)</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>2026.11.06</dd></div>
+    <div><dt>작성</dt><dd>경영기획팀</dd></div>
+    <div><dt>보고 대상</dt><dd>본부장</dd></div>
+  </dl>
+</header>
+
+<nav class="rk-toc"></nav>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">3분기 매출 1,820억원으로 목표 101% 달성, 다만 원재료비 상승으로 영업이익률은 7.8%(전년 대비 △1.1%p)로 하락함</p>
+  <ol class="rk-keypoints">
+    <li><strong>매출 1,820억원, 전년 동기 대비 +4.1%</strong> — 신제품 A 판매 호조(+38억원)가 성장 견인</li>
+    <li><strong>영업이익 142억원, 전년 대비 -8.4%</strong> — 원재료비 +9% 상승이 주 원인</li>
+    <li><strong>4분기 단가 3% 인상 시 이익률 8.6%까지 회복 가능</strong>(추정) — 경쟁사 2곳 이미 인상</li>
+  </ol>
+  <div class="rk-kpis">
+    <script type="application/json">
+    [
+      {"label": "매출액", "value": 1820, "unit": "억원", "delta": "+4.1%", "deltaLabel": "전년 동기 대비", "progress": 101, "status": "good"},
+      {"label": "영업이익", "value": 142, "unit": "억원", "delta": "-8.4%", "deltaLabel": "전년 동기 대비", "status": "bad", "spark": [150, 155, 149, 158, 151, 146, 142]},
+      {"label": "영업이익률", "value": 7.8, "unit": "%", "delta": "-1.1%p", "deltaLabel": "전년 동기 대비", "status": "warn"},
+      {"label": "원가율", "value": 71.4, "unit": "%", "delta": "+2.3%p", "good": "down", "deltaLabel": "전년 동기 대비"}
+    ]
+    </script>
+  </div>
+  <div class="rk-ask"><b>요청사항</b>11/15까지 4분기 단가 인상안(평균 3%) 승인 요청</div>
+</section>
+
+<section class="rk-section">
+  <h2>막대 · 선 · 콤보 차트</h2>
+  <p class="rk-lead">매출은 3분기 연속 증가했으며 9월에 월 최고치(652억원)를 기록함</p>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "bar",
+      "title": "9월 매출 652억원으로 월 최고치, 목표선(600억원) 3개월 연속 상회",
+      "subtitle": "월별 매출액, 2026년 1~9월",
+      "unit": "억원",
+      "categories": ["1월","2월","3월","4월","5월","6월","7월","8월","9월"],
+      "series": [{"name": "매출", "data": [520, 498, 561, 574, 590, 586, 612, 630, 652]}],
+      "highlight": "9월",
+      "target": {"value": 600, "label": "목표"},
+      "source": "ERP 매출 마감 데이터(2026.10.05 기준)"
+    }
+    </script>
+  </div>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "bar", "horizontal": true, "sort": "desc",
+        "title": "제품 A가 매출 1위, 상위 2개 제품이 전체의 58%",
+        "subtitle": "제품별 3분기 매출", "unit": "억원",
+        "categories": ["제품 A","제품 B","제품 C","제품 D","제품 E"],
+        "series": [{"name": "매출", "data": [612, 446, 318, 255, 189]}],
+        "highlight": ["제품 A"],
+        "source": "ERP"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "bar", "stack": true,
+        "title": "온라인 비중이 분기마다 확대, 3분기 43%",
+        "subtitle": "채널별 매출 구성", "unit": "억원",
+        "categories": ["1Q","2Q","3Q"],
+        "series": [
+          {"name": "온라인", "data": [560, 640, 790]},
+          {"name": "오프라인", "data": [1020, 1010, 1030]}
+        ],
+        "source": "채널별 매출 집계"
+      }
+      </script>
+    </div>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "line",
+      "title": "회원 수는 하반기에도 증가세 유지, 12월 52만 명 전망",
+      "subtitle": "월말 활성 회원 수 (10월 이후는 전망치)", "unit": "만 명",
+      "categories": ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+      "series": [
+        {"name": "당사", "data": [38.2, 39.0, 40.1, 41.5, 42.2, 43.8, 45.1, 46.0, 47.3, 48.6, 50.1, 52.0]},
+        {"name": "경쟁사 평균", "data": [35.0, 35.4, 35.9, 36.1, 36.8, 37.0, 37.4, 37.9, 38.1, 38.6, 39.0, 39.5]}
+      ],
+      "forecastFrom": "9월",
+      "annotations": [{"at": "4월", "text": "멤버십 개편"}],
+      "source": "CRM, 업계 리포트"
+    }
+    </script>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "combo",
+      "title": "매출 증가에도 영업이익률은 3분기 연속 하락",
+      "subtitle": "분기별 매출(막대)과 영업이익률(선)", "unit": "억원", "unit2": "%",
+      "categories": ["'25.3Q","'25.4Q","'26.1Q","'26.2Q","'26.3Q"],
+      "series": [
+        {"name": "매출", "as": "bar", "data": [1748, 1802, 1580, 1650, 1820]},
+        {"name": "영업이익률", "as": "line", "axis": "right", "data": [8.9, 9.1, 8.6, 8.2, 7.8]}
+      ],
+      "source": "재무팀"
+    }
+    </script>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "bar",
+      "title": "계획 대비 실적은 2개월 미달, 4분기 전망은 계획 상회",
+      "subtitle": "IBCS 표기: 실적=진한 막대, 계획=외곽선, 전망=빗금", "unit": "억원",
+      "categories": ["7월","8월","9월","10월","11월","12월"],
+      "series": [
+        {"name": "계획", "role": "plan", "data": [600, 620, 640, 650, 660, 700]},
+        {"name": "실적·전망", "data": [612, 598, 625, null, null, null]},
+        {"name": "전망", "role": "forecast", "data": [null, null, null, 668, 675, 720]}
+      ],
+      "source": "경영계획"
+    }
+    </script>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>구성 · 증감 · 목표 대비</h2>
+  <p class="rk-lead">영업이익 감소분(-13억원)의 대부분은 원재료비 상승(-31억원)에서 발생함</p>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "waterfall",
+      "title": "원재료비 상승(-31억원)이 매출 증가 효과(+28억원)를 상쇄",
+      "subtitle": "영업이익 증감 요인, 전년 3분기 → 금년 3분기", "unit": "억원",
+      "items": [
+        {"name": "'25.3Q 영업이익", "value": 155, "total": true},
+        {"name": "판매량 증가", "value": 28},
+        {"name": "판가 인상", "value": 9},
+        {"name": "원재료비", "value": -31},
+        {"name": "인건비", "value": -12},
+        {"name": "판관비 절감", "value": 6},
+        {"name": "기타", "value": -13},
+        {"name": "'26.3Q 영업이익", "total": true}
+      ],
+      "source": "재무팀 손익 분석"
+    }
+    </script>
+  </div>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "donut",
+        "title": "수도권이 매출의 절반 이상(54%)",
+        "subtitle": "지역별 매출 비중", "unit": "억원",
+        "data": [
+          {"name": "수도권", "value": 983}, {"name": "영남", "value": 382},
+          {"name": "충청", "value": 191}, {"name": "호남", "value": 146},
+          {"name": "강원", "value": 62}, {"name": "제주", "value": 33}, {"name": "해외", "value": 23}
+        ],
+        "centerLabel": "총매출",
+        "source": "ERP"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "bar", "stack": "percent", "horizontal": true,
+        "title": "20대 고객의 모바일 비중 81%로 가장 높음",
+        "subtitle": "연령대별 구매 채널 구성", "unit": "천 건",
+        "categories": ["20대","30대","40대","50대 이상"],
+        "series": [
+          {"name": "모바일", "data": [81, 66, 48, 29]},
+          {"name": "PC", "data": [12, 22, 31, 30]},
+          {"name": "매장", "data": [7, 12, 21, 41]}
+        ],
+        "source": "주문 DB"
+      }
+      </script>
+    </div>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "bullet",
+      "title": "5개 KPI 중 3개 목표 달성, 신규고객·NPS는 미달",
+      "subtitle": "KPI별 실적(막대) vs 목표(세로선), 회색 구간=부진/보통/양호",
+      "items": [
+        {"name": "매출(억원)", "actual": 1820, "target": 1800, "ranges": [1500, 1700, 2000]},
+        {"name": "영업이익(억원)", "actual": 142, "target": 140, "ranges": [110, 130, 170]},
+        {"name": "신규고객(천명)", "actual": 41, "target": 50, "ranges": [35, 45, 60]},
+        {"name": "NPS(점)", "actual": 38, "target": 45, "ranges": [30, 40, 55]},
+        {"name": "재구매율(%)", "actual": 62, "target": 60, "ranges": [50, 58, 70]}
+      ],
+      "source": "KPI 대시보드"
+    }
+    </script>
+  </div>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "gauge",
+        "title": "공정률 72%, 계획(80%) 대비 8%p 지연",
+        "items": [{"name": "공정률", "value": 72, "target": 80, "unit": "%"}],
+        "source": "PMO"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "funnel",
+        "title": "장바구니→결제 단계 이탈이 가장 큼(전환 38%)",
+        "subtitle": "9월 구매 퍼널", "unit": "명",
+        "stages": [
+          {"name": "방문", "value": 120000}, {"name": "상품 조회", "value": 64000},
+          {"name": "장바구니", "value": 21000}, {"name": "결제", "value": 8000}
+        ],
+        "source": "GA4"
+      }
+      </script>
+    </div>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>비교 · 분포 · 관계</h2>
+  <p class="rk-lead">6개 지점 중 4곳의 고객만족도가 개선되었고, 강남점의 개선폭(+12점)이 가장 큼</p>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "dumbbell",
+        "title": "강남점 만족도 +12점으로 개선폭 최대",
+        "subtitle": "지점별 고객만족도, 상반기 → 하반기", "unit": "점",
+        "fromLabel": "상반기", "toLabel": "하반기",
+        "items": [
+          {"name": "강남점", "from": 71, "to": 83}, {"name": "판교점", "from": 75, "to": 81},
+          {"name": "부산점", "from": 68, "to": 72}, {"name": "대구점", "from": 70, "to": 71},
+          {"name": "광주점", "from": 74, "to": 70}, {"name": "대전점", "from": 77, "to": 72}
+        ],
+        "source": "고객 설문(n=4,120)"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "slope",
+        "title": "B사가 점유율 2위로 상승, 당사와 격차 3%p로 축소",
+        "subtitle": "시장 점유율 변화", "unit": "%",
+        "fromLabel": "2025", "toLabel": "2026",
+        "items": [
+          {"name": "당사", "from": 31, "to": 29}, {"name": "B사", "from": 21, "to": 26},
+          {"name": "C사", "from": 24, "to": 22}, {"name": "D사", "from": 14, "to": 13}
+        ],
+        "highlight": ["당사", "B사"],
+        "source": "시장조사기관"
+      }
+      </script>
+    </div>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "scatter",
+      "title": "고성장·고마진 사업은 2개, 사업 E는 철수 검토 대상",
+      "subtitle": "사업별 성장률 × 영업이익률 (원 크기 = 매출)",
+      "xName": "매출 성장률", "xUnit": "%", "yName": "영업이익률", "yUnit": "%", "sizeName": "매출", "sizeUnit": "억원",
+      "points": [
+        {"name": "사업 A", "x": 18, "y": 14, "size": 620}, {"name": "사업 B", "x": 12, "y": 11, "size": 440},
+        {"name": "사업 C", "x": 4, "y": 15, "size": 310}, {"name": "사업 D", "x": 9, "y": 5, "size": 250},
+        {"name": "사업 E", "x": -6, "y": 2, "size": 120}, {"name": "사업 F", "x": 2, "y": 8, "size": 180}
+      ],
+      "quadrant": {"x": 5, "y": 9, "labels": ["수익 유지", "핵심 성장", "철수 검토", "수익성 개선"]},
+      "source": "사업부 실적"
+    }
+    </script>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "heatmap",
+      "title": "화·수요일 오후 2~4시에 문의가 집중(최대 96건/시간)",
+      "subtitle": "요일 × 시간대별 고객 문의 건수", "unit": "건",
+      "x": ["9시","10시","11시","12시","13시","14시","15시","16시","17시"],
+      "y": ["월","화","수","목","금"],
+      "values": [
+        [32, 45, 51, 28, 40, 62, 58, 44, 30],
+        [38, 52, 60, 31, 49, 96, 88, 61, 35],
+        [35, 50, 58, 30, 47, 91, 84, 57, 33],
+        [30, 41, 47, 26, 39, 60, 55, 42, 28],
+        [27, 36, 40, 22, 33, 48, 41, 31, 20]
+      ],
+      "source": "콜센터 시스템"
+    }
+    </script>
+  </div>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "pareto",
+        "title": "불량 원인 상위 3개가 전체의 81%",
+        "subtitle": "9월 불량 원인별 건수", "unit": "건",
+        "items": [
+          {"name": "치수 불량", "value": 142}, {"name": "도장 불량", "value": 98}, {"name": "이물 혼입", "value": 61},
+          {"name": "포장 파손", "value": 32}, {"name": "라벨 오류", "value": 22}, {"name": "기타", "value": 17}
+        ],
+        "source": "품질팀"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "radar",
+        "title": "당사는 품질·브랜드 우위, 가격·배송은 열위",
+        "subtitle": "경쟁력 평가(5점 만점)",
+        "indicators": [{"name": "품질", "max": 5}, {"name": "가격", "max": 5}, {"name": "배송", "max": 5}, {"name": "브랜드", "max": 5}, {"name": "서비스", "max": 5}],
+        "series": [{"name": "당사", "data": [4.5, 3.1, 3.3, 4.4, 4.0]}, {"name": "B사", "data": [3.8, 4.2, 4.1, 3.5, 3.9]}],
+        "source": "고객 설문"
+      }
+      </script>
+    </div>
+  </div>
+
+  <div class="rk-grid">
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "boxplot",
+        "title": "C라인 처리시간 편차가 가장 큼",
+        "subtitle": "라인별 건당 처리시간 분포", "unit": "분",
+        "groups": [
+          {"name": "A라인", "values": [12, 13, 14, 13, 15, 16, 14, 13, 12, 14, 15, 13]},
+          {"name": "B라인", "values": [14, 15, 15, 16, 17, 15, 14, 16, 18, 15, 16, 15]},
+          {"name": "C라인", "values": [10, 14, 19, 22, 13, 25, 17, 12, 21, 30, 16, 18]}
+        ],
+        "source": "MES"
+      }
+      </script>
+    </div>
+    <div class="rk-chart">
+      <script type="application/json">
+      {
+        "type": "histogram",
+        "title": "배송 소요일은 2~3일 구간에 집중",
+        "subtitle": "주문 50건 배송 소요일 분포", "unit": "일",
+        "values": [1.2,1.8,2.1,2.3,2.2,2.5,2.8,2.9,3.1,2.4,2.6,2.2,1.9,2.7,3.4,3.8,4.2,2.1,2.3,2.6,2.8,3.0,2.5,2.4,1.7,2.2,2.9,3.3,5.1,2.0,2.4,2.6,2.7,2.3,2.1,3.6,2.8,2.5,2.2,1.6,2.9,3.1,2.7,2.4,2.0,4.6,2.6,2.3,2.8,3.2],
+        "bins": 8,
+        "source": "물류 시스템"
+      }
+      </script>
+    </div>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>흐름 · 계층 · 일정</h2>
+  <p class="rk-lead">신규 유입의 62%가 검색 채널에서 발생하며, 앱 전환율이 가장 높음</p>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "sankey",
+      "title": "검색 유입이 가장 많고, 앱 경유 구매 전환이 가장 높음",
+      "subtitle": "유입 채널 → 접속 경로 → 결과", "unit": "명",
+      "links": [
+        {"source": "검색", "target": "웹", "value": 4200}, {"source": "검색", "target": "앱", "value": 1300},
+        {"source": "SNS", "target": "웹", "value": 1500}, {"source": "SNS", "target": "앱", "value": 900},
+        {"source": "제휴", "target": "웹", "value": 900},
+        {"source": "웹", "target": "구매", "value": 1300}, {"source": "웹", "target": "이탈", "value": 5300},
+        {"source": "앱", "target": "구매", "value": 900}, {"source": "앱", "target": "이탈", "value": 1300}
+      ],
+      "source": "GA4"
+    }
+    </script>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "treemap",
+      "title": "IT 예산의 46%가 인프라에 편중",
+      "subtitle": "2027년 IT 예산 배분안", "unit": "억원",
+      "data": [
+        {"name": "인프라", "children": [{"name": "클라우드", "value": 38}, {"name": "네트워크", "value": 14}, {"name": "보안", "value": 12}]},
+        {"name": "애플리케이션", "children": [{"name": "ERP 고도화", "value": 26}, {"name": "CRM", "value": 15}]},
+        {"name": "데이터·AI", "children": [{"name": "데이터 플랫폼", "value": 18}, {"name": "AI 도입", "value": 11}]},
+        {"name": "운영", "value": 5}
+      ],
+      "source": "IT기획팀"
+    }
+    </script>
+  </div>
+
+  <div class="rk-chart">
+    <script type="application/json">
+    {
+      "type": "gantt",
+      "title": "개발 단계 2주 지연, 오픈 일정(3/2)은 유지 가능",
+      "subtitle": "차세대 시스템 구축 일정",
+      "today": "2026-11-06",
+      "tasks": [
+        {"name": "요구사항 정의", "start": "2026-09-01", "end": "2026-09-30", "group": "분석·설계", "progress": 100},
+        {"name": "아키텍처 설계", "start": "2026-09-22", "end": "2026-10-24", "group": "분석·설계", "progress": 100},
+        {"name": "핵심 모듈 개발", "start": "2026-10-13", "end": "2026-12-19", "group": "개발", "progress": 45},
+        {"name": "연계 개발", "start": "2026-11-10", "end": "2027-01-16", "group": "개발", "progress": 10},
+        {"name": "통합 테스트", "start": "2027-01-12", "end": "2027-02-13", "group": "테스트·오픈"},
+        {"name": "오픈", "start": "2027-03-02", "milestone": true, "group": "테스트·오픈"}
+      ],
+      "source": "PMO 주간보고"
+    }
+    </script>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>표 · 진척률 · 텍스트 컴포넌트</h2>
+  <p class="rk-lead">사업부 4곳 중 3곳이 목표를 달성했으며, C사업부만 미달(92%)</p>
+
+  <div class="rk-tablejs">
+    <script type="application/json">
+    {
+      "title": "C사업부만 목표 미달(92%), 나머지 3곳은 초과 달성",
+      "unit": "억원",
+      "columns": [
+        {"key": "name", "label": "사업부"},
+        {"key": "plan", "label": "목표", "type": "num"},
+        {"key": "actual", "label": "실적", "type": "num"},
+        {"key": "rate", "label": "달성률", "type": "bar", "unit": "%", "max": 120},
+        {"key": "yoy", "label": "전년비", "type": "delta", "unit": "%"},
+        {"key": "status", "label": "상태", "type": "badge"}
+      ],
+      "rows": [
+        {"name": "A사업부", "plan": 600, "actual": 652, "rate": 108.7, "yoy": 9.2, "status": "초과달성"},
+        {"name": "B사업부", "plan": 480, "actual": 495, "rate": 103.1, "yoy": 4.4, "status": "달성"},
+        {"name": "C사업부", "plan": 420, "actual": 386, "rate": 91.9, "yoy": -3.1, "status": "미달"},
+        {"name": "D사업부", "plan": 300, "actual": 287, "rate": 95.7, "yoy": 1.2, "status": "주의"}
+      ],
+      "total": {"name": "합계", "plan": 1800, "actual": 1820, "rate": 101.1, "yoy": 4.1},
+      "highlight": ["C사업부"],
+      "source": "ERP (2026.10.05 마감)"
+    }
+    </script>
+  </div>
+
+  <table class="rk-table" data-heat="3">
+    <thead><tr><th>지역</th><th class="num">매출(억원)</th><th class="num">성장률(%)</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>수도권</td><td>983</td><td>6.2</td><td>신규 매장 2곳</td></tr>
+      <tr><td>영남</td><td>382</td><td>2.1</td><td>-</td></tr>
+      <tr><td>충청</td><td>191</td><td>-1.4</td><td>경쟁 심화</td></tr>
+      <tr class="rk-total"><td>합계</td><td>1,556</td><td>4.0</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="rk-grid">
+    <div class="rk-card">
+      <div class="rk-card-title">프로젝트 진척</div>
+      <div class="rk-progress" data-label="전체 공정률" data-value="72" data-target="80"></div>
+      <div class="rk-progress" data-label="예산 집행률" data-value="64" data-target="70"></div>
+      <div class="rk-progress" data-label="테스트 통과율" data-value="96" data-target="95"></div>
+    </div>
+    <div class="rk-card">
+      <div class="rk-card-title">이슈 현황 <span class="rk-badge bad">위험 1</span> <span class="rk-badge warn">주의 2</span></div>
+      <ul class="rk-gae">
+        <li>연계 개발 지연
+          <ul><li>외부 기관 API 사양 변경(10/28 통보)으로 2주 지연</li><li>추가 인력 2명 투입으로 12월 내 만회 예정</li></ul>
+        </li>
+        <li>테스트 환경 부족
+          <ul><li>클라우드 테스트 계정 11/15 추가 확보 예정</li></ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>As-Is → To-Be</h3>
+  <div class="rk-compare">
+    <div><div class="rk-compare-head">As-Is (현재)</div><ul><li>수작업 정산, 월 5일 소요</li><li>부서별 엑셀 관리로 수치 불일치</li></ul></div>
+    <div><div class="rk-compare-head">To-Be (개선 후)</div><ul><li>자동 정산, 월 1일 이내</li><li>단일 데이터 플랫폼으로 수치 일원화</li></ul></div>
+  </div>
+
+  <h3>추진 절차 (CSS 프로세스)</h3>
+  <ol class="rk-steps">
+    <li class="done"><b>현황 진단</b><span>9월 완료</span></li>
+    <li class="done"><b>개선안 설계</b><span>10월 완료</span></li>
+    <li class="now"><b>시범 적용</b><span>11월 진행 중</span></li>
+    <li><b>전사 확산</b><span>12월~</span></li>
+    <li><b>효과 측정</b><span>'27.3월</span></li>
+  </ol>
+
+  <h3>추진 경과 (타임라인)</h3>
+  <ol class="rk-timeline">
+    <li class="done"><time>2026.09.01</time><b>TF 구성</b><p>현업 6명, IT 4명</p></li>
+    <li class="done"><time>2026.10.15</time><b>개선안 확정</b><p>경영회의 승인</p></li>
+    <li class="now"><time>2026.11.06</time><b>시범 적용 중</b><p>본사 재무팀 대상</p></li>
+    <li><time>2026.12.01</time><b>전사 확산</b><p>12개 부서</p></li>
+  </ol>
+
+  <div class="rk-grid">
+    <div class="rk-matrix" data-x="실행 난이도 (낮음 → 높음)" data-y="기대 효과 (낮음 → 높음)">
+      <div class="rk-hl"><b>Quick Win</b><ul><li>정산 자동화</li><li>보고서 표준화</li></ul></div>
+      <div><b>전략 과제</b><ul><li>데이터 플랫폼</li></ul></div>
+      <div><b>선택 과제</b><ul><li>양식 정비</li></ul></div>
+      <div><b>보류</b><ul><li>전면 재구축</li></ul></div>
+    </div>
+    <div class="rk-swot">
+      <div class="rk-s"><b>S 강점</b><ul><li>브랜드 인지도 1위</li></ul></div>
+      <div class="rk-w"><b>W 약점</b><ul><li>원가 구조 취약</li></ul></div>
+      <div class="rk-o"><b>O 기회</b><ul><li>온라인 시장 +15%</li></ul></div>
+      <div class="rk-t"><b>T 위협</b><ul><li>신규 저가 진입자</li></ul></div>
+    </div>
+  </div>
+
+  <div class="rk-callout rk-insight"><strong>시사점</strong>원가 상승은 일시적이지 않음 — 단가 인상과 원가 절감을 병행해야 이익률 8%대 회복 가능</div>
+  <div class="rk-callout rk-warn"><strong>리스크</strong>단가 인상 시 가격 민감 고객(매출의 18%) 이탈 가능성 존재</div>
+  <p class="rk-sowhat">4분기 단가 인상(3%)과 구매 단가 재협상(-2%)을 동시 추진해야 함</p>
+</section>
+
+<section class="rk-section">
+  <h2>다이어그램 (Mermaid)</h2>
+  <p class="rk-lead">승인 절차를 4단계에서 3단계로 단축해 평균 처리기간을 5일→2일로 줄임</p>
+
+  <div class="rk-diagram" data-title="개선 후 구매 승인 프로세스 — 팀장 전결 한도 상향으로 3단계로 단축" data-source="구매 규정 개정안">
+    <script type="text/x-mermaid">
+    flowchart LR
+      A["구매 요청<br>(현업)"] --> B{"금액 5천만원 이하?"}
+      B -- "예" --> C["팀장 전결"]:::brand
+      B -- "아니오" --> D["본부장 승인"]
+      D --> E["구매팀 발주"]
+      C --> E
+      E --> F["검수·지급"]:::good
+    </script>
+  </div>
+
+  <div class="rk-diagram" data-title="장애 대응 흐름 — 1차 대응 30분 내 완료 원칙">
+    <script type="text/x-mermaid">
+    sequenceDiagram
+      participant U as 사용자
+      participant H as 헬프데스크
+      participant O as 운영팀
+      U->>H: 장애 신고
+      H->>O: 등급 판정 후 이관
+      O-->>H: 1차 조치 결과(30분 내)
+      H-->>U: 처리 결과 안내
+    </script>
+  </div>
+
+  <div class="rk-decision">
+    <h3>의사결정 요청 사항</h3>
+    <ol>
+      <li><b>4분기 단가 3% 인상안 승인</b> — 결정 기한 11/15, 미결정 시 연간 이익 -24억원</li>
+      <li><b>구매 승인 전결 한도 상향(3천만→5천만원)</b> — 규정 개정 12/1 시행</li>
+    </ol>
+  </div>
+</section>
+
+<section class="rk-section rk-appendix">
+  <h2>용어 및 기준</h2>
+  <ul>
+    <li>영업이익률 = 영업이익 ÷ 매출액 × 100</li>
+    <li>%p(퍼센트포인트): 비율 간 차이. 예) 8.9% → 7.8% = -1.1%p</li>
+  </ul>
+</section>
+
+<div class="rk-footnotes">
+  <ol>
+    <li>모든 수치는 갤러리 시연용 가상 데이터임.</li>
+    <li>금액은 부가세 제외, 반올림으로 합계가 일치하지 않을 수 있음.</li>
+  </ol>
+</div>
+<footer class="rk-footer"><span>경영기획팀 · 대외비</span><span>report-kit gallery</span></footer>

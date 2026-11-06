@@ -1,0 +1,143 @@
+<!--
+title: 국내 간편식 시장 분석
+theme: teal
+-->
+<!-- ✎ 템플릿: 데이터·시장·경쟁 분석. 표본 수(n)·조사 기간·출처를 모든 차트에. 예시 수치는 교체하고 "sample": true 를 지울 것 -->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">시장 분석 보고</span></div>
+  <h1>국내 간편식 시장 분석 및 시사점</h1>
+  <p class="rk-cover-sub">시장은 연 9% 성장 중이나 당사 점유율은 2년 연속 하락(31%→29%) — 1인 가구·온라인 대응이 관건</p>
+  <ul class="rk-cover-stats">
+    <li><b>6.1<small>조원</small></b><span>2026년 시장 규모(E)</span></li>
+    <li><b>29<small>%</small></b><span>당사 점유율 (-2%p)</span></li>
+    <li><b>44<small>%</small></b><span>1인 가구 구매 비중</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>2026.11.06</dd></div>
+    <div><dt>작성</dt><dd>전략기획팀</dd></div>
+    <div><dt>분석 기간</dt><dd>2022~2026(E)</dd></div>
+  </dl>
+</header>
+
+<nav class="rk-toc"></nav>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">간편식 시장은 2026년 6.1조원(연 9% 성장)이나, 당사는 온라인·1인 가구 대응 부진으로 점유율 2%p 하락 — 온라인 전용 소용량 라인업 확대 필요</p>
+  <ol class="rk-keypoints">
+    <li><strong>시장 6.1조원, 4년 연평균 +9.0%</strong> — 온라인 채널이 성장의 72% 차지</li>
+    <li><strong>당사 점유율 31%→29%, B사 21%→26%</strong> — B사는 온라인 전용 소용량 제품으로 성장</li>
+    <li><strong>1인 가구 구매 비중 44%, 소용량 선호 2.3배</strong> — 당사 소용량 제품 비중은 18%에 불과</li>
+  </ol>
+  <div class="rk-kpis"><script type="application/json">
+  [
+    {"label": "시장 규모('26E)", "value": 6.1, "unit": "조원", "delta": "+9.0%", "deltaLabel": "연평균('22~'26)"},
+    {"label": "당사 점유율", "value": 29, "unit": "%", "delta": "-2%p", "deltaLabel": "전년 대비", "status": "bad", "spark": [32, 31.5, 31, 30, 29]},
+    {"label": "온라인 비중", "value": 38, "unit": "%", "delta": "+6%p", "deltaLabel": "전년 대비"},
+    {"label": "1인 가구 구매 비중", "value": 44, "unit": "%"}
+  ]
+  </script></div>
+</section>
+
+<section class="rk-section">
+  <h2>시장 규모와 성장</h2>
+  <p class="rk-lead">시장은 4년간 연 9% 성장, 2027년 6.6조원 전망</p>
+  <p>간편식 시장은 4년 동안 연평균 9% 성장했으며, 성장분의 대부분은 온라인 채널에서 나왔다. 오프라인 시장은 사실상 정체 상태여서, 향후 점유율 경쟁의 승부처는 온라인이 될 가능성이 높다.</p>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "bar", "stack": true,
+    "title": "온라인 채널이 4년간 성장분의 72%를 차지",
+    "subtitle": "채널별 간편식 시장 규모 (2026~27년은 전망)", "unit": "조원",
+    "categories": ["2022", "2023", "2024", "2025", "2026(E)", "2027(E)"],
+    "series": [
+      {"name": "오프라인", "data": [3.4, 3.5, 3.6, 3.7, 3.8, 3.9]},
+      {"name": "온라인", "data": [0.9, 1.2, 1.5, 1.9, 2.3, 2.7]}
+    ],
+    "decimals": 1,
+    "source": "식품산업통계, 당사 추정", "sample": true
+  }
+  </script></div>
+</section>
+
+<section class="rk-section">
+  <h2>경쟁 구도</h2>
+  <p class="rk-lead">B사가 온라인 소용량 전략으로 점유율 +5%p, 당사와 격차 3%p로 축소</p>
+  <p>B사는 2년 사이 점유율을 5%p 끌어올리며 당사와의 격차를 3%p까지 좁혔다. 품질에서는 당사가 앞서지만 가격과 소용량 구성에서 B사가 우위를 보였고, 이 차이가 온라인 채널에서 그대로 점유율 격차로 나타났다.</p>
+  <div class="rk-grid">
+    <div class="rk-chart"><script type="application/json">
+    {
+      "type": "slope", "height": 300,
+      "title": "B사 +5%p 상승, 당사 -2%p 하락",
+      "unit": "%", "fromLabel": "2024", "toLabel": "2026(E)",
+      "items": [
+        {"name": "당사", "from": 31, "to": 29}, {"name": "B사", "from": 21, "to": 26},
+        {"name": "C사", "from": 24, "to": 22}, {"name": "D사", "from": 14, "to": 13}
+      ],
+      "highlight": ["당사", "B사"],
+      "source": "시장조사기관 패널(n=8,000가구)", "sample": true
+    }
+    </script></div>
+    <div class="rk-chart"><script type="application/json">
+    {
+      "type": "radar", "height": 300,
+      "title": "당사는 품질 우위, 가격·소용량 구성은 열위",
+      "indicators": [{"name": "품질", "max": 5}, {"name": "가격", "max": 5}, {"name": "소용량 구성", "max": 5}, {"name": "온라인 접근성", "max": 5}, {"name": "브랜드", "max": 5}],
+      "series": [{"name": "당사", "data": [4.5, 3.0, 2.6, 3.2, 4.4]}, {"name": "B사", "data": [3.8, 4.1, 4.5, 4.3, 3.6]}],
+      "source": "소비자 조사(n=1,200, 5점 척도)", "sample": true
+    }
+    </script></div>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>고객 분석</h2>
+  <p class="rk-lead">1인 가구는 소용량·온라인 구매 비중이 다인 가구의 2배 이상</p>
+  <p>1인 가구는 소용량 제품을 다인 가구보다 두 배 이상 선호하고, 평일 저녁 온라인 주문이 집중된다. 당사 제품군은 소용량 비중이 낮아 가장 빠르게 성장하는 고객층의 수요를 충분히 담지 못하고 있다.</p>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "bar", "stack": "percent", "horizontal": true,
+    "title": "1인 가구의 소용량 구매 비중 62%, 4인 이상 가구의 2.3배",
+    "subtitle": "가구 유형별 구매 용량 구성", "unit": "건",
+    "categories": ["1인 가구", "2인 가구", "3인 가구", "4인 이상"],
+    "series": [
+      {"name": "소용량", "data": [62, 41, 33, 27]},
+      {"name": "일반", "data": [31, 47, 52, 55]},
+      {"name": "대용량", "data": [7, 12, 15, 18]}
+    ],
+    "source": "구매 패널 데이터('26.1~9월)", "sample": true
+  }
+  </script></div>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "heatmap",
+    "title": "1인 가구는 평일 저녁 온라인 주문이 집중",
+    "subtitle": "가구 유형 × 시간대별 온라인 주문 비중", "unit": "%",
+    "x": ["아침", "점심", "오후", "저녁", "심야"],
+    "y": ["1인 가구", "2인 가구", "3인 이상"],
+    "values": [[8, 14, 12, 41, 25], [11, 18, 20, 36, 15], [15, 22, 27, 29, 7]],
+    "source": "자사몰 주문 데이터", "sample": true
+  }
+  </script></div>
+  <p class="rk-sowhat">1인 가구 대상 소용량 제품을 온라인 저녁 시간대 중심으로 판매해야 함</p>
+</section>
+
+<section class="rk-section">
+  <h2>시사점 및 제언</h2>
+  <p class="rk-lead">품질 강점을 유지하며 소용량·온라인 전용 라인업으로 점유율 회복 추진</p>
+  <p>당사의 품질과 브랜드 강점은 여전히 유효하다. 다만 이 강점이 1인 가구와 온라인 채널로 전달되지 않는 것이 문제이므로, 제품 구성과 판매 채널을 이 고객층에 맞추는 것이 점유율 회복의 출발점이다.</p>
+  <div class="rk-swot">
+    <div class="rk-s"><b>S 강점</b><ul><li>품질 평가 1위(4.5점)</li><li>브랜드 인지도 1위</li></ul></div>
+    <div class="rk-w"><b>W 약점</b><ul><li>소용량 비중 18%</li><li>온라인 전용 제품 부재</li></ul></div>
+    <div class="rk-o"><b>O 기회</b><ul><li>1인 가구 연 +3% 증가</li><li>온라인 시장 연 +26%</li></ul></div>
+    <div class="rk-t"><b>T 위협</b><ul><li>B사 온라인 공세</li><li>PB 저가 제품 확대</li></ul></div>
+  </div>
+  <div class="rk-callout rk-insight"><strong>제언</strong>2027년 상반기 온라인 전용 소용량 라인업 8종 출시 → 점유율 31% 회복 목표(추정)</div>
+</section>
+
+<section class="rk-section rk-appendix">
+  <h2>분석 방법 및 출처</h2>
+  <ul>
+    <li>시장 규모: 식품산업통계 연간 자료, 2026~27년은 회귀 추정(오차 ±5%).</li>
+    <li>점유율: 시장조사기관 가구 패널(n=8,000), 금액 기준.</li>
+  </ul>
+</section>

@@ -1,0 +1,122 @@
+<!--
+title: 온라인 결제 장애 발생 보고
+theme: slate
+-->
+<!-- ✎ 템플릿: 이슈·사고 보고. 확인된 사실과 추정을 구분해 표기("추정", "확인 중"). 시각은 24시간제. 예시 수치는 교체하고 "sample": true 를 지울 것 -->
+<header class="rk-cover">
+  <div class="rk-cover-top"><span class="rk-cover-kind">장애 · 사고 보고</span><span class="rk-badge good">복구 완료</span></div>
+  <h1>온라인 결제 장애 발생 보고</h1>
+  <p class="rk-cover-sub">11/05 14:12~15:03(51분) 카드 결제 실패, 고객 3,240명 영향 — 복구 완료, 재발 방지 3건 추진</p>
+  <ul class="rk-cover-stats">
+    <li><b>51<small>분</small></b><span>장애 시간</span></li>
+    <li><b>3,240<small>명</small></b><span>영향 고객</span></li>
+    <li><b>98<small>%</small></b><span>실패 주문 재결제율</span></li>
+  </ul>
+  <dl class="rk-cover-meta">
+    <div><dt>보고일</dt><dd>2026.11.06</dd></div>
+    <div><dt>작성</dt><dd>IT운영팀</dd></div>
+    <div><dt>등급</dt><dd>2등급(주요 서비스 부분 중단)</dd></div>
+  </dl>
+</header>
+
+<section class="rk-summary">
+  <h2>핵심 요약</h2>
+  <p class="rk-bluf">결제 게이트웨이 인증서 만료로 51분간 카드 결제 실패(실패 4,812건) — 15:03 인증서 교체로 복구, 실패 주문 98% 재결제 유도 완료</p>
+  <ol class="rk-keypoints">
+    <li><strong>영향: 고객 3,240명, 결제 실패 4,812건</strong> — 추정 매출 손실 0.9억원(재결제분 제외 시 0.2억원)</li>
+    <li><strong>원인: 결제 연동 인증서 만료</strong> — 만료 알림이 퇴사자 메일로 발송되어 미인지(확인됨)</li>
+    <li><strong>재발 방지: 인증서 통합 관리·알림 이중화</strong> — 11/30까지 완료 예정</li>
+  </ol>
+  <div class="rk-kpis"><script type="application/json">
+  [
+    {"label": "장애 시간", "value": 51, "unit": "분", "status": "bad", "note": "14:12 ~ 15:03"},
+    {"label": "영향 고객", "value": 3240, "unit": "명", "status": "bad"},
+    {"label": "결제 실패", "value": 4812, "unit": "건", "note": "재결제 4,716건(98%)"},
+    {"label": "추정 손실", "value": 0.2, "unit": "억원", "note": "재결제분 제외(추정)", "status": "warn"}
+  ]
+  </script></div>
+  <div class="rk-ask"><b>요청사항</b>인증서 관리 솔루션 도입비 1,800만원 긴급 집행 승인</div>
+</section>
+
+<section class="rk-section">
+  <h2>발생 개요</h2>
+  <p class="rk-lead">신용카드 결제 전 구간에서 실패, 간편결제·계좌이체는 정상</p>
+  <p>장애는 신용카드 결제를 중계하는 게이트웨이 구간에서만 발생했고, 다른 결제 수단은 정상 처리되었다. 영향 범위가 특정 연동 구간으로 한정되었다는 점은 원인을 빠르게 좁히는 단서가 되었다.</p>
+  <table class="rk-table">
+    <tbody>
+      <tr><th>발생 일시</th><td>2026.11.05(수) 14:12 ~ 15:03 (51분)</td></tr>
+      <tr><th>영향 서비스</th><td>온라인몰·앱 신용카드 결제 (간편결제·계좌이체 정상)</td></tr>
+      <tr><th>발견 경위</th><td>14:16 모니터링 알람(결제 실패율 급증) → 14:18 고객센터 문의 급증</td></tr>
+      <tr><th>현재 상태</th><td><span class="rk-badge good">복구 완료</span> 15:03 이후 정상, 24시간 모니터링 중</td></tr>
+    </tbody>
+  </table>
+  <div class="rk-chart"><script type="application/json">
+  {
+    "type": "line",
+    "title": "14:12 결제 실패율 97%까지 급증, 15:03 인증서 교체 후 즉시 정상화",
+    "subtitle": "5분 단위 카드 결제 실패율, 11/05", "unit": "%",
+    "categories": ["13:50", "14:00", "14:10", "14:15", "14:20", "14:30", "14:40", "14:50", "15:00", "15:05", "15:10"],
+    "series": [{"name": "결제 실패율", "data": [0.4, 0.5, 0.6, 96.8, 97.2, 96.5, 97.0, 96.9, 95.8, 0.7, 0.5]}],
+    "annotations": [{"at": "14:15", "text": "장애 발생"}, {"at": "15:05", "text": "복구"}],
+    "zero": true, "source": "결제 모니터링 시스템", "sample": true
+  }
+  </script></div>
+</section>
+
+<section class="rk-section">
+  <h2>대응 경과</h2>
+  <p class="rk-lead">탐지 4분, 원인 파악 33분, 복구까지 51분 소요</p>
+  <p>모니터링 알람으로 4분 만에 장애를 인지했지만, 원인을 특정하기까지 30분 가까이 걸렸다. 인증서 만료가 점검 목록에 없어 다른 가능성을 먼저 확인했기 때문이다. 탐지는 빨랐지만 진단 절차에 '만료형 자산' 점검이 빠져 있었던 것이 복구 지연의 주된 원인이다.</p>
+  <ol class="rk-timeline">
+    <li class="done"><time>14:12</time><b>장애 발생</b><p>결제 게이트웨이 인증서 만료 시점</p></li>
+    <li class="done"><time>14:16</time><b>모니터링 알람·비상 대응반 소집</b><p>IT운영팀 당직자 인지</p></li>
+    <li class="done"><time>14:45</time><b>원인 파악</b><p>PG사 응답 로그에서 인증서 오류 확인</p></li>
+    <li class="done"><time>15:03</time><b>인증서 교체·복구</b><p>정상 결제 확인</p></li>
+    <li class="now"><time>15:30~</time><b>고객 안내·재결제 유도</b><p>알림톡 3,240건 발송, 쿠폰 지급</p></li>
+  </ol>
+  <div class="rk-diagram" data-title="근본 원인 — 만료 알림 수신자 관리 부재" data-source="원인 분석 회의 (11/06)">
+    <script type="text/x-mermaid">
+    flowchart TD
+      P["결제 실패 51분"]:::bad --> C1["인증서 만료"]
+      C1 --> C2["갱신 누락"]
+      C2 --> C3["만료 알림 미인지"]
+      C3 --> R1["알림이 퇴사자 메일로 발송"]:::bad
+      C3 --> R2["인증서 목록 관리 부재"]:::bad
+    </script>
+  </div>
+</section>
+
+<section class="rk-section">
+  <h2>조치 및 재발 방지 대책</h2>
+  <p class="rk-lead">즉시 조치 3건 완료, 재발 방지 3건은 11/30까지 완료 예정</p>
+  <p>근본 원인은 인증서 자체가 아니라 만료 알림이 퇴사자에게 발송되는 관리 체계에 있었다. 따라서 재발 방지 대책은 인증서 교체보다 알림 경로 이중화와 통합 관리 체계 구축에 초점을 맞췄다.</p>
+  <div class="rk-tablejs"><script type="application/json">
+  {
+    "title": "재발 방지 대책 3건, 11/30까지 완료 예정",
+    "columns": [
+      {"key": "type", "label": "구분"},
+      {"key": "task", "label": "조치 내용"},
+      {"key": "owner", "label": "담당"},
+      {"key": "due", "label": "기한"},
+      {"key": "status", "label": "상태", "type": "badge"}
+    ],
+    "rows": [
+      {"type": "즉시", "task": "인증서 교체 및 전체 인증서 만료일 점검(43개)", "owner": "IT운영팀", "due": "11/05", "status": "완료"},
+      {"type": "즉시", "task": "실패 고객 재결제 안내·보상 쿠폰 지급", "owner": "CS팀", "due": "11/06", "status": "완료"},
+      {"type": "재발 방지", "task": "인증서 통합 관리 솔루션 도입(만료 30·7·1일 전 알림)", "owner": "IT운영팀", "due": "11/30", "status": "진행중"},
+      {"type": "재발 방지", "task": "알림 수신자를 개인 → 팀 공용 메일·메신저로 이중화", "owner": "IT운영팀", "due": "11/15", "status": "진행중"},
+      {"type": "재발 방지", "task": "결제 실패율 5% 초과 시 자동 대체 결제수단 안내", "owner": "개발팀", "due": "11/30", "status": "검토"}
+    ],
+    "source": "IT운영팀", "sample": true
+  }
+  </script></div>
+  <p class="rk-sowhat">인증서·라이선스 등 '만료형 자산' 전체를 같은 기준으로 관리해야 동일 유형 재발 차단 가능</p>
+</section>
+
+<div class="rk-footnotes">
+  <ol>
+    <li>추정 손실 = 실패 주문 금액 − 재결제 완료 금액 (11/06 09:00 기준, 추정).</li>
+    <li>장애 등급 기준: 사내 IT 서비스 장애 관리 규정 제7조.</li>
+  </ol>
+</div>
+<footer class="rk-footer"><span>IT운영팀</span><span>장애번호 INC-2026-1105-01</span></footer>
