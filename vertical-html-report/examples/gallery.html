@@ -1564,7 +1564,7 @@ body {
       trimZ = true;
     } else if (d == null) d = Number.isInteger(n) ? 0 : (Math.abs(n) >= 100 ? 0 : 1);
     var abs = Math.abs(n);
-    var body = abs.toLocaleString('ko-KR', { minimumFractionDigits: trimZ ? 0 : d, maximumFractionDigits: d });
+    var body = abs.toLocaleString('ko-KR', { minimumFractionDigits: trimZ ? 0 : d, maximumFractionDigits: d, useGrouping: o.grouping !== false });
     var sign = '';
     if (n < 0 && Number(body.replace(/,/g, '')) !== 0) sign = o.negative === 'triangle' ? '△' : '-';
     else if (o.sign && n > 0) sign = '+';
@@ -1877,16 +1877,19 @@ body {
     if (o.interval) ax.interval = o.interval;
     return ax;
   }
+  // 연도처럼 천 단위 쉼표가 어색한 값: "grouping": false 또는 unit '년'
+  function noGroup(s) { return (s && (s.grouping === false || s.unit === '년')) ? false : undefined; }
   function axisFormatter(s, unit) {
     var maxAbs = 0;
     (s.series || []).forEach(function (sr) { sr.data.forEach(function (v) { if (v != null) maxAbs = Math.max(maxAbs, Math.abs(v)); }); });
     var compact = s.compact != null ? !!s.compact : maxAbs >= 100000;
     var pct = (unit != null ? unit : s.unit) === '%';
-    return function (v) { return fmt(v, { compact: compact, decimals: Number.isInteger(v) ? 0 : (Math.abs(v) < 1 ? 2 : 1), trim: true }) + (pct ? '%' : ''); };
+    var grp = noGroup(s);
+    return function (v) { return fmt(v, { compact: compact, decimals: Number.isInteger(v) ? 0 : (Math.abs(v) < 1 ? 2 : 1), trim: true, grouping: grp }) + (pct ? '%' : ''); };
   }
   function valueFmt(s, d, unit) {
     var u = unit != null ? unit : s.unit;
-    return function (v) { return fmt(v, { decimals: d, unit: u, compact: s.compact === true, negative: s.negative }); };
+    return function (v) { return fmt(v, { decimals: d, unit: u, compact: s.compact === true, negative: s.negative, grouping: noGroup(s) }); };
   }
   function labelFmt(s, d) {
     return function (p) {
@@ -1987,7 +1990,7 @@ body {
         var extra = opt.extra ? opt.extra(p) : '';
         var u = opt.unitOf ? opt.unitOf(p) : s.unit;
         rows.push('<div style="display:flex;justify-content:space-between;gap:16px;align-items:center;line-height:1.7">' +
-          '<span>' + p.marker + esc(nm) + '</span><b style="font-variant-numeric:tabular-nums">' + esc(fmt(v, { decimals: d, unit: u, negative: s.negative })) + extra + '</b></div>');
+          '<span>' + p.marker + esc(nm) + '</span><b style="font-variant-numeric:tabular-nums">' + esc(fmt(v, { decimals: d, unit: u, negative: s.negative, grouping: noGroup(s) })) + extra + '</b></div>');
       });
       if (opt.footer) rows.push(opt.footer(params));
       return '<div style="font-weight:700;margin-bottom:2px">' + esc(head) + '</div>' + rows.join('');
@@ -2166,7 +2169,7 @@ body {
           target.data = mainData.map(function (v, j) {
             if (j !== li) return v;
             return { value: v, symbol: 'circle', symbolSize: dim ? 6 : 9, label: { show: true, position: 'right', distance: 6, color: dim ? t.muted : t.ink, fontWeight: dim ? 500 : 700, fontSize: 12,
-              formatter: (n > 1 ? sr.name + '  ' : '') + fmt(v, { decimals: d, unit: s.unit === '%' ? '%' : '', compact: s.compact === true }) } };
+              formatter: (n > 1 ? sr.name + '  ' : '') + fmt(v, { decimals: d, unit: s.unit === '%' ? '%' : '', compact: s.compact === true, grouping: noGroup(s) }) } };
           });
           target.showSymbol = true;
           if (!showAll) target.data = target.data.map(function (x, j) { return j === li ? x : { value: x, symbol: 'none' }; });
@@ -2207,11 +2210,18 @@ body {
     tip.axisPointer = { type: 'line', lineStyle: { color: t.lineStrong, width: 1 } };
     tip.formatter = axisTooltip(s, t, d);
     var hasAnn = !!(s.annotations || s.annotation || s.events);
+    var yAx = valAxis(t, s, { scale: scale, min: s.yMin, max: s.yMax });
+    if (s.log) { // 지수 추세: 로그 축 (값은 모두 0보다 커야 함)
+      yAx.type = 'log'; yAx.logBase = s.logBase || 10; yAx.scale = true;
+      delete yAx.interval; delete yAx.splitNumber;
+      if (s.yMin == null) delete yAx.min; if (s.yMax == null) delete yAx.max;
+      es.forEach(function (e) { e.areaStyle = undefined; });
+    }
     return base(t, {
       legend: legend, tooltip: tip,
       grid: grid((legend.show ? 36 : 18) + (hasAnn ? 18 : 0), { right: endLabels ? Math.min(Math.max(longest, 40), 170) : 22 }),
       xAxis: catAxis(t, cats, { boundaryGap: false, labelWidth: cats.length > 14 ? undefined : slotWidth(ctx, Math.max(1, cats.length - 1), 110), interval: cats.length > 14 ? 'auto' : 0 }),
-      yAxis: valAxis(t, s, { scale: scale, min: s.yMin, max: s.yMax }),
+      yAxis: yAx,
       series: es
     });
   };
@@ -2301,6 +2311,7 @@ body {
     var donut = s.donut !== false && s.donut !== 'false';
     var pd = s.pctDecimals != null ? s.pctDecimals : 1;
     var pctOf = function (v) { return (total ? v / total * 100 : 0).toFixed(pd); };
+    var isShare = s.unit === '%'; // 값 자체가 비중(%)이면 값과 비중을 중복 표시하지 않음
     // 좁은 칸(2단 그리드 등): 바깥 라벨 대신 오른쪽 범례에 이름·값·비중 표시
     var narrow = s.legendMode === true || (s.legendMode !== false && (ctx.width || 760) < 560);
     var W = ctx.width || 760, H = ctx.height || 300;
@@ -2315,21 +2326,21 @@ body {
       legend: narrow ? {
         show: true, orient: 'vertical', right: 0, top: 'middle', icon: 'circle', itemWidth: 9, itemHeight: 9, itemGap: 11,
         data: data.map(function (x) { return x.name; }),
-        formatter: function (name) { var x = data.filter(function (y) { return y.name === name; })[0]; return '{n|' + name + '}{v|' + fmt(x.value, { decimals: d }) + '}{p|' + pctOf(x.value) + '%}'; },
+        formatter: function (name) { var x = data.filter(function (y) { return y.name === name; })[0]; return '{n|' + name + '}{v|' + (isShare ? pctOf(x.value) + '%' : fmt(x.value, { decimals: d })) + '}{p|' + (isShare ? '' : pctOf(x.value) + '%') + '}'; },
         textStyle: { fontFamily: t.font, rich: { n: { width: nameW, fontSize: 12, color: t.ink2 }, v: { width: 50, align: 'right', fontSize: 12, color: t.ink, fontWeight: 700 }, p: { width: 50, align: 'right', fontSize: 12, color: t.muted } } }
       } : { show: false },
       series: [{
         type: 'pie', radius: narrow ? (donut ? [outerR * 0.64, outerR] : [0, outerR]) : (donut ? ['50%', '74%'] : [0, '74%']), center: [cx, '52%'], startAngle: 90, avoidLabelOverlap: true,
         itemStyle: { borderColor: '#FFFFFF', borderWidth: 2, borderRadius: donut ? 3 : 0 },
         label: { show: !narrow, color: t.ink2, fontFamily: t.font, lineHeight: 16,
-          formatter: function (p) { return '{n|' + p.name + '}\n{v|' + fmt(p.value, { decimals: d, unit: s.labelUnit != null ? s.labelUnit : '' }) + '  ' + pctOf(p.value) + '%}'; },
+          formatter: function (p) { return '{n|' + p.name + '}\n{v|' + (isShare ? pctOf(p.value) + '%' : fmt(p.value, { decimals: d, unit: s.labelUnit != null ? s.labelUnit : '' }) + '  ' + pctOf(p.value) + '%') + '}'; },
           rich: { n: { fontSize: 12, color: t.ink2, fontWeight: 500 }, v: { fontSize: 12, color: t.ink, fontWeight: 700 } } },
         labelLine: { show: !narrow, length: 10, length2: 12, lineStyle: { color: t.lineStrong } }, labelLayout: { hideOverlap: true },
         data: data
       }]
     });
     if (donut && s.center !== false) {
-      o.title = { text: s.centerLabel || '합계', subtext: s.centerValue || fmt(total, { decimals: d, compact: total >= 100000 }) + (s.unit || ''),
+      o.title = { text: s.centerLabel || '합계', subtext: s.centerValue || (isShare ? '' : fmt(total, { decimals: d, compact: total >= 100000 }) + (s.unit || '')),
         left: cx, top: '41%', textAlign: 'center', itemGap: 4,
         textStyle: { fontSize: 12, fontWeight: 500, color: t.muted, fontFamily: t.font },
         subtextStyle: { fontSize: narrow ? 17 : 20, fontWeight: 800, color: t.ink, fontFamily: t.font } };
@@ -3040,7 +3051,7 @@ body {
    * ------------------------------------------------------------------ */
   function tableFor(s) {
     var u = s.unit || '';
-    var F = function (v, d) { return fmt(v, { decimals: d != null ? d : decimalsOf([v]), negative: s.negative }); };
+    var F = function (v, d) { return fmt(v, { decimals: d != null ? d : decimalsOf([v]), negative: s.negative, grouping: noGroup(s) }); };
     try {
       if (s.categories && s.series && ['bar', 'line', 'combo', 'pareto'].indexOf(s.type) >= 0) {
         return { head: ['구분'].concat(s.series.map(function (sr) { return sr.name; })), rows: s.categories.map(function (c, i) { return [c].concat(s.series.map(function (sr) { return F(sr.data[i]); })); }) };
