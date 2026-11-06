@@ -377,6 +377,11 @@ def lint_text(text, path="<text>"):
         elif n_vis >= 3 and n_chars < 400:
             issues.append(("WARN", line, f"섹션 '{name}': 시각화 {n_vis}개 대비 해설 단락이 짧음({n_chars}자)"))
 
+    # 계산 과정 나열(아무도 읽지 않음) 경고
+    calc = re.findall(r"\d[\d,.]*\s*[÷×]\s*\(?\d[\d,.]*[^<]{0,40}?=\s*[-+]?\d", body)
+    if len(calc) >= 4:
+        issues.append(("WARN", 0, f"계산 과정('a ÷ b = c') {len(calc)}건 — 검산 과정은 보고서에 쓰지 말고, 추정·역산 값만 차트 note에 방법 한 줄로"))
+
     # 문체: 개조식
     li = [t for t, _ in p.li_texts if len(t) > 8]
     if li:
