@@ -592,12 +592,13 @@ td .rk-delta, p .rk-delta, li .rk-delta { font-size: .86em; }
 }
 
 /* ---------- 16-2. 리치 스타일 (기본): 그라데이션 · 깊이 · 질감 ----------
-   같은 계열 그라데이션(주색 진함→주색, 주색→강조색)만 사용한다. 무지개·네온·보라-핑크 그라데이션은 쓰지 않는다.
+   같은 색상 계열 그라데이션(주색 진함→주색→주색 옅음)만 사용한다. 주색→강조색처럼 색상이 다른 두 색을 잇지 않는다(가운데가 탁해짐). 무지개·네온·보라-핑크 그라데이션은 쓰지 않는다.
    평면형이 필요하면 front matter "style: flat" → <html data-style="flat"> 에서 아래 효과가 모두 꺼진다. */
 :root {
   --rk-grad-brand: linear-gradient(135deg, var(--rk-brand-strong) 0%, var(--rk-brand) 100%);
-  --rk-grad-accent: linear-gradient(90deg, var(--rk-brand) 0%, var(--rk-accent) 100%);
-  --rk-grad-accent-v: linear-gradient(180deg, var(--rk-brand) 0%, var(--rk-accent) 100%);
+  --rk-brand-light: color-mix(in oklab, var(--rk-brand) 52%, #FFFFFF);
+  --rk-grad-accent: linear-gradient(90deg, var(--rk-brand-strong) 0%, var(--rk-brand) 55%, var(--rk-brand-light) 100%);
+  --rk-grad-accent-v: linear-gradient(180deg, var(--rk-brand) 0%, var(--rk-brand-light) 100%);
   --rk-grad-soft: linear-gradient(155deg, var(--rk-brand-soft) 0%, var(--rk-paper) 78%);
   --rk-grad-card: linear-gradient(180deg, var(--rk-paper) 0%, var(--rk-surface-2) 100%);
   --rk-shadow-card: 0 1px 2px rgba(16, 24, 40, .04), 0 6px 18px rgba(16, 24, 40, .05);
@@ -662,8 +663,14 @@ body {
 /* KPI 카드: 상단 그라데이션 선 + 은은한 바탕·그림자 */
 .rk-kpi { overflow: hidden; background: var(--rk-grad-card); box-shadow: var(--rk-shadow-card); }
 .rk-summary .rk-kpi { background: var(--rk-grad-card); }
+/* 상단 띠 = 상태색(상태 없으면 주색). 상태가 있으면 왼쪽 표시선은 상단 띠로 대체해 색 신호를 하나로 */
 .rk-kpi::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--rk-grad-accent); }
-.rk-hero-value { background: var(--rk-grad-accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rk-kpi[data-status]::before { --s: var(--rk-muted); background: linear-gradient(90deg, var(--s) 0%, color-mix(in oklab, var(--s) 45%, #FFFFFF) 100%); }
+.rk-kpi[data-status="good"]::before { --s: var(--rk-good); }
+.rk-kpi[data-status="warn"]::before { --s: var(--rk-warn); }
+.rk-kpi[data-status="bad"]::before { --s: var(--rk-bad); }
+.rk-kpi[data-status]::after { content: none; }
+.rk-hero-value { background: linear-gradient(90deg, var(--rk-brand-strong) 0%, var(--rk-brand) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 /* 그림·카드 깊이 */
 .rk-figure { box-shadow: var(--rk-shadow-card); }
 .rk-figure.rk-plain { box-shadow: none; }
@@ -711,6 +718,7 @@ body {
 [data-style="flat"] .rk-cover { background: var(--rk-cover-bg); }
 [data-style="flat"] .rk-cover::before, [data-style="flat"] .rk-cover::after { content: none; }
 [data-style="flat"] .rk-kpi::before { content: none; }
+[data-style="flat"] .rk-kpi[data-status]::after { content: ""; }
 [data-style="flat"] .rk-hero-value { background: none; color: var(--rk-brand); }
 [data-style="flat"] .rk-callout.rk-insight { background: var(--rk-brand-soft); }
 [data-style="flat"] .rk-callout.rk-info { background: var(--rk-info-soft); }
