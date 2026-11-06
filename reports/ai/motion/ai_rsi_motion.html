@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 발전 속도 × RSI — 모션그래픽</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  :root {
+    --bg: #0A0A0B; --bg2: #121214; --ink: #F2EFE8; --ink2: #B9B5AC; --muted: #6F6C66; --line: #232327;
+    --coral: #E2734F; --coral2: #F2A07F; --teal: #4FD1C1; --gold: #E9C46A; --red: #E5534B;
+    --sans: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: var(--sans); color: var(--ink); }
+  #stage { position: relative; width: 1920px; height: 1080px; background: var(--bg); overflow: hidden; transform-origin: center center; flex: none; }
+  /* 배경: 미세 격자 + 비네트 + 코랄 글로우 */
+  #bg-grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 80px 80px; }
+  #bg-glow { position: absolute; width: 1400px; height: 1400px; left: 260px; top: -160px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(226,115,79,.20) 0%, rgba(226,115,79,.06) 35%, transparent 65%); }
+  #bg-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.65) 100%); }
+  /* HUD */
+  .hud { position: absolute; font-family: var(--mono); font-size: 18px; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; z-index: 20; }
+  .hud b { color: var(--ink2); font-weight: 700; }
+  #hud-tl { left: 72px; top: 56px; }
+  #hud-tr { right: 72px; top: 56px; text-align: right; }
+  #hud-tr #chap { color: var(--coral); }
+  #hud-bl { left: 72px; bottom: 50px; font-size: 15px; letter-spacing: .12em; max-width: 1300px; }
+  #hud-br { right: 72px; bottom: 50px; font-size: 15px; }
+  #progress { position: absolute; left: 72px; right: 72px; bottom: 32px; height: 2px; background: var(--line); z-index: 20; }
+  #progress i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--coral); }
+  .tick { position: absolute; top: -4px; width: 2px; height: 10px; background: #3A3A40; }
+  /* 장면 */
+  .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+  .kicker { font-family: var(--mono); font-size: 22px; letter-spacing: .3em; color: var(--coral); font-weight: 700; }
+  .h-xxl { font-size: 150px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.02; }
+  .h-xl { font-size: 104px; font-weight: 900; letter-spacing: -0.035em; line-height: 1.08; }
+  .h-l { font-size: 72px; font-weight: 850; letter-spacing: -0.03em; line-height: 1.12; }
+  .h-m { font-size: 46px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.25; }
+  .body { font-size: 32px; font-weight: 500; color: var(--ink2); line-height: 1.5; }
+  .coral { color: var(--coral); } .teal { color: var(--teal); } .muted { color: var(--muted); } .gold { color: var(--gold); }
+  .ch-head { position: absolute; left: 120px; top: 150px; display: flex; align-items: baseline; gap: 28px; }
+  .ch-num { font-family: var(--mono); font-size: 30px; font-weight: 800; color: var(--bg); background: var(--coral); padding: 4px 14px; border-radius: 6px; }
+  .ch-title { font-size: 40px; font-weight: 800; letter-spacing: -0.01em; }
+  .ch-lead { position: absolute; left: 120px; top: 222px; font-size: 64px; font-weight: 850; letter-spacing: -0.03em; line-height: 1.15; max-width: 1680px; }
+  .char { display: inline-block; will-change: transform, opacity; white-space: pre; }
+  .word { display: inline-block; white-space: nowrap; }
+  .chip { position: absolute; padding: 26px 34px; border: 1px solid #2E2E33; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); }
+  .chip b { display: block; font-size: 74px; font-weight: 900; letter-spacing: -0.03em; }
+  .chip span { display: block; margin-top: 6px; font-family: var(--mono); font-size: 19px; letter-spacing: .12em; color: var(--ink2); }
+  .label { font-family: var(--mono); font-size: 18px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  svg text { font-family: var(--mono); }
+  .card { position: absolute; width: 520px; padding: 36px 38px; border-radius: 20px; border: 1px solid #2E2E33; background: rgba(255,255,255,.025); }
+  .card .who { font-family: var(--mono); font-size: 20px; letter-spacing: .14em; color: var(--ink2); }
+  .card .what { margin-top: 18px; font-size: 34px; font-weight: 800; line-height: 1.3; }
+  .card .stamp { margin-top: 26px; display: inline-block; white-space: nowrap; font-family: var(--mono); font-weight: 800; font-size: 20px; letter-spacing: .14em; padding: 8px 16px; border-radius: 8px; border: 2px solid currentColor; }
+  .wipe { position: absolute; top: 0; bottom: 0; width: 2400px; left: -2500px; z-index: 30;
+    background: linear-gradient(90deg, transparent 0, var(--coral) 18%, var(--coral) 82%, transparent 100%); }
+  #play { position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 24px;
+    background: rgba(10,10,11,.72); cursor: pointer; font-family: var(--mono); letter-spacing: .2em; color: var(--ink2); font-size: 22px; }
+  #play .btn { width: 140px; height: 140px; border-radius: 50%; border: 2px solid var(--coral); display: flex; align-items: center; justify-content: center; }
+  #play .btn::after { content: ""; margin-left: 10px; border-left: 44px solid var(--coral); border-top: 28px solid transparent; border-bottom: 28px solid transparent; }
+  body.render #play { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg-grid"></div><div id="bg-glow"></div><div id="bg-vig"></div>
+  <div class="hud" id="hud-tl"><b>AI PROGRESS × RSI</b> &nbsp;— REPORT 2026.11.07</div>
+  <div class="hud" id="hud-tr"><b id="chap">00 / 08 · INTRO</b></div>
+  <div class="hud" id="hud-bl"><span id="src">SOURCE · METR · EPOCH AI · ARC PRIZE · ANTHROPIC · OPENAI</span></div>
+  <div class="hud" id="hud-br"><span id="tc">00:00</span></div>
+  <div id="progress"><i></i></div>
+  <div class="wipe" id="wipe"></div>
+  <div id="scenes"></div>
+  <div id="play"><div class="btn"></div><div>CLICK TO PLAY · 3:00</div></div>
+</div>
+<audio id="music" src="music.wav" preload="auto"></audio>
+
+<script>
+(function () {
+  var W = 1920, H = 1080, DUR = 180;
+  var R = location.search.indexOf('render') >= 0;
+  if (R) document.body.classList.add('render');
+  var stage = document.getElementById('stage');
+  function fit() { if (R) return; var s = Math.min(innerWidth / W, innerHeight / H); stage.style.transform = 'scale(' + s + ')'; }
+  addEventListener('resize', fit); fit();
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var root = document.getElementById('scenes');
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, cls, html, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; (parent || root).appendChild(e); return e; }
+  function svg(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function pos(e, x, y, w) { e.style.position = 'absolute'; if (x != null) e.style.left = x + 'px'; if (y != null) e.style.top = y + 'px'; if (w) e.style.width = w + 'px'; return e; }
+  function scene(id) { var s = el('div', 'scene'); s.id = id; return s; }
+  // 글자 단위 분해(키네틱 타이포)
+  function split(e) {
+    var html = e.innerHTML, out = '';
+    var tmp = document.createElement('div'); tmp.innerHTML = html;
+    function walk(n, wrapCls) {
+      var s = '';
+      n.childNodes.forEach(function (c) {
+        if (c.nodeType === 3) {
+          c.textContent.split(/(\s+)/).forEach(function (w) {
+            if (!w) return;
+            if (/^\s+$/.test(w)) { s += '<span class="char"> </span>'; return; }
+            s += '<span class="word">' + Array.from(w).map(function (ch) { return '<span class="char' + (wrapCls ? ' ' + wrapCls : '') + '">' + ch + '</span>'; }).join('') + '</span>';
+          });
+        } else if (c.nodeName === 'BR') s += '<br>';
+        else s += walk(c, c.className);
+      });
+      return s;
+    }
+    e.innerHTML = walk(tmp, '');
+    return e.querySelectorAll('.char');
+  }
+  function fmt(v, d) { return v.toLocaleString('ko-KR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+
+  var tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  window.__tl = tl;
+
+  // 공통 HUD
+  tl.to('#progress i', { width: '100%', duration: DUR, ease: 'none' }, 0);
+  var tcObj = { t: 0 };
+  tl.to(tcObj, { t: DUR, duration: DUR, ease: 'none', onUpdate: function () { var t = Math.floor(tcObj.t); $('#tc').textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); } }, 0);
+  tl.to('#bg-glow', { x: 300, y: 120, duration: DUR, ease: 'sine.inOut' }, 0);
+  tl.to('#bg-grid', { backgroundPosition: '0px 400px', duration: DUR, ease: 'none' }, 0);
+
+  var CH = [ // [시작, 번호, 이름, 출처]
+    [0, '00', 'INTRO', 'SOURCE · METR · EPOCH AI · ARC PRIZE · ANTHROPIC · OPENAI'],
+    [19, '01', 'CAPABILITY', 'SOURCE · METR TIME HORIZON 1.1 (2026.01) · TH1.1 50% SUCCESS'],
+    [50, '02', 'BENCHMARKS', 'SOURCE · ARC PRIZE LEADERBOARD (2026.11)'],
+    [68, '03', 'INPUTS', 'SOURCE · EPOCH AI · COMPANY FILINGS · BLOOMBERG · FT'],
+    [90, '04', 'RSI EVIDENCE', 'SOURCE · ANTHROPIC INSTITUTE (2026.06/09) · METR RCT · AI FUTURES PROJECT'],
+    [116, '05', 'THRESHOLDS', 'SOURCE · RSP v3.4 · PREPAREDNESS v2 · FSF v3.1 · AI FUTURES (2026.08)'],
+    [134, '06', 'SCENARIOS', 'SOURCE · FORETHOUGHT · EPOCH AI · ANALYST JUDGEMENT'],
+    [152, '07', 'IMPACT', 'SOURCE · STANFORD DEL · EPOCH AI · EU AI ACT · OPENAI'],
+    [166, '08', 'RESPONSE', 'MADE WITH CLAUDE OPUS 5.5 · PUBLIC SOURCES AS OF 2026.11.07']
+  ];
+  CH.forEach(function (c, i) {
+    tl.set('#chap', { textContent: c[1] + ' / 08 · ' + c[2] }, c[0]);
+    tl.set('#src', { textContent: c[3] }, c[0]);
+    if (i > 0) { // 코랄 와이프 전환
+      tl.fromTo('#wipe', { x: 0 }, { x: 4600, duration: 0.9, ease: 'power2.inOut' }, c[0] - 0.45);
+      var tk = document.createElement('i'); tk.className = 'tick'; tk.style.left = (c[0] / DUR * 100) + '%'; $('#progress').appendChild(tk);
+    }
+  });
+
+  function show(s, t0, t1) {
+    tl.set(s, { autoAlpha: 1 }, t0);
+    if (t1 != null) { tl.to(s, { autoAlpha: 0, duration: 0.35, ease: 'power1.in' }, t1 - 0.35); }
+  }
+  function typeIn(e, at, opts) {
+    opts = opts || {};
+    var cs = split(e);
+    tl.from(cs, { yPercent: opts.y != null ? opts.y : 110, opacity: 0, rotate: opts.rot || 0, duration: opts.d || 0.7, stagger: opts.st || 0.025, ease: opts.ease || 'expo.out' }, at);
+    return cs;
+  }
+  function fadeUp(e, at, d, y) { tl.from(e, { y: y != null ? y : 40, opacity: 0, duration: d || 0.8 }, at); }
+  function chapterHead(sc, num, title, lead, at) {
+    var h = el('div', 'ch-head', '<span class="ch-num">' + num + '</span><span class="ch-title">' + title + '</span>', sc);
+    tl.from(h.children[0], { scaleX: 0, transformOrigin: 'left center', duration: 0.6, ease: 'expo.out' }, at + 0.1);
+    tl.from(h.children[1], { x: -30, opacity: 0, duration: 0.6 }, at + 0.25);
+    var l = el('div', 'ch-lead', lead, sc);
+    typeIn(l, at + 0.45, { st: 0.018 });
+    return l;
+  }
+  function counter(e, from, to, at, d, dec, suffix, prefix) {
+    var o = { v: from };
+    e.textContent = (prefix || '') + fmt(from, dec) + (suffix || '');
+    tl.to(o, { v: to, duration: d, ease: 'power2.out', onUpdate: function () { e.textContent = (prefix || '') + fmt(o.v, dec) + (suffix || ''); } }, at);
+  }
+  function burst(parent, cx, cy, r0, r1, n, color, width) {
+    var g = svg('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, style: 'position:absolute;left:0;top:0' }, parent);
+    var grp = svg('g', {}, g);
+    var lines = [];
+    for (var i = 0; i < n; i++) {
+      var a = i / n * Math.PI * 2;
+      var ln = svg('line', { x1: cx + Math.cos(a) * r0, y1: cy + Math.sin(a) * r0, x2: cx + Math.cos(a) * r1, y2: cy + Math.sin(a) * r1, stroke: color, 'stroke-width': width, 'stroke-linecap': 'round' }, grp);
+      lines.push(ln);
+    }
+    return { svg: g, g: grp, lines: lines, cx: cx, cy: cy };
+  }
+
+  /* ============ 0. 오프닝 (0–9) ============ */
+  var s0 = scene('s0'); show(s0, 0, 9);
+  var b0 = burst(s0, 960, 470, 40, 230, 18, '#E2734F', 16);
+  var ring0 = svg('circle', { cx: 960, cy: 470, r: 300, fill: 'none', stroke: '#2A2A2F', 'stroke-width': 2, 'stroke-dasharray': '4 10' }, b0.svg);
+  tl.from(b0.lines, { attr: { x2: 960, y2: 470 }, opacity: 0, duration: 1.2, stagger: 0.04, ease: 'expo.out' }, 0.3);
+  tl.from(ring0, { scale: 0.6, opacity: 0, transformOrigin: '960px 470px', duration: 1.6 }, 0.5);
+  tl.to(b0.g, { rotate: 45, svgOrigin: '960 470', duration: 9, ease: 'none' }, 0);
+  var k0 = pos(el('div', 'center kicker', 'WHAT HAPPENS WHEN AI BUILDS AI', s0), 0, 800);
+  typeIn(k0, 1.6, { st: 0.03, y: 0 });
+  var t0 = pos(el('div', 'center h-l', 'AI가 AI를 만들기 시작하면', s0), 0, 860);
+  typeIn(t0, 2.6, { st: 0.04 });
+  tl.to(b0.lines, { attr: { x1: 960, y1: 470 }, stroke: '#F2EFE8', duration: 0.8, stagger: 0.02, ease: 'power3.in' }, 7.6);
+  tl.to(b0.svg, { scale: 6, opacity: 0, transformOrigin: '960px 470px', duration: 1.0, ease: 'power4.in' }, 8.0);
+
+  /* ============ 1. 타이틀 (9–19) ============ */
+  var s1 = scene('s1'); show(s1, 9, 19);
+  var k1 = pos(el('div', 'center kicker', 'TREND ANALYSIS · RECURSIVE SELF-IMPROVEMENT', s1), 0, 250);
+  typeIn(k1, 9.2, { y: 0, st: 0.02 });
+  var t1a = pos(el('div', 'center h-xl', 'AI 발전 속도 추이와', s1), 0, 320);
+  var t1b = pos(el('div', 'center h-xl', '<span class="coral">재귀적 자기개선</span>의 영향', s1), 0, 440);
+  typeIn(t1a, 9.5, { st: 0.035 }); typeIn(t1b, 10.1, { st: 0.035 });
+  var chips = [['16<small style="font-size:40px">시간+</small>', 'AI 단독 작업 지평'], ['4.3<small style="font-size:40px">개월</small>', '작업 지평 배가 기간'], ['80<small style="font-size:40px">%+</small>', 'AI가 쓰는 연구소 코드']];
+  chips.forEach(function (c, i) {
+    var ch = pos(el('div', 'chip', '<b>' + c[0] + '</b><span>' + c[1] + '</span>', s1), 300 + i * 450, 650, 420);
+    if (i === 2) ch.querySelector('b').classList.add('coral');
+    tl.from(ch, { y: 60, opacity: 0, duration: 0.8 }, 12 + i * 0.35);
+  });
+  var q1 = pos(el('div', 'center body', '같은 일을 해내는 AI의 시간이, 분기마다 두 배씩 길어지고 있다', s1), 0, 900);
+  fadeUp(q1, 14.2);
+
+  /* ============ 2. 역량 발전 속도 (19–50) ============ */
+  var s2 = scene('s2'); show(s2, 19, 50);
+  chapterHead(s2, '01', '역량 발전 속도', 'AI가 혼자 끝내는 작업 길이, <span class="coral">약 4개월마다 두 배</span>', 19.3);
+  // A: 거대 카운터
+  var bigA = pos(el('div', '', '', s2), 120, 420, 1680);
+  var la = pos(el('div', 'label', 'GPT-4 · 2023.03', bigA), 0, 0);
+  var va = pos(el('div', 'h-xxl', '3.5분', bigA), 0, 40);
+  var arrow = pos(el('div', 'h-xxl muted', '→', bigA), 640, 40);
+  var lb = pos(el('div', 'label', 'CLAUDE MYTHOS PREVIEW · 2026.04', bigA), 860, 0);
+  var vb = pos(el('div', 'h-xxl coral', '', bigA), 860, 40);
+  var mult = pos(el('div', 'h-m', '3년 만에 <span class="coral">약 270배</span>', bigA), 0, 300);
+  fadeUp(la, 21); tl.from(va, { scale: 0.7, opacity: 0, transformOrigin: 'left center', duration: 0.9 }, 21.2);
+  tl.from(arrow, { x: -60, opacity: 0, duration: 0.6 }, 22.4);
+  fadeUp(lb, 22.8);
+  tl.set(vb, { textContent: '0.1시간' }, 22.8);
+  counter(vb, 0.1, 16, 23.0, 3.2, 1, '시간+');
+  tl.set(vb, { textContent: '16시간+' }, 26.3);
+  fadeUp(mult, 26.6);
+  tl.to(bigA, { y: -60, opacity: 0, duration: 0.6, ease: 'power2.in' }, 30.3);
+  // B: 로그 차트
+  var chartB = el('div', '', '', s2); pos(chartB, 0, 0);
+  var cs = svg('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, style: 'position:absolute;left:0;top:0' }, chartB);
+  var X0 = 200, X1 = 1220, Y0 = 900, DEC = 132; // 1 decade = 140px, 0.01..100
+  function ly(v) { return Y0 - (Math.log10(v) + 2) * DEC; }
+  [0.01, 0.1, 1, 10, 100].forEach(function (v) {
+    var y = ly(v);
+    svg('line', { x1: X0, y1: y, x2: X1, y2: y, stroke: '#26262B', 'stroke-width': 1 }, cs);
+    var t = svg('text', { x: X0 - 18, y: y + 6, fill: '#6F6C66', 'font-size': 18, 'text-anchor': 'end' }, cs); t.textContent = v >= 1 ? v + 'h' : (v * 60) + 'm';
+  });
+  var pts = [['GPT-4', '23.3', 0.06], ['GPT-4o', '24.5', 0.1], ['3.5 Sonnet', '24.10', 0.33], ['o1', '24.12', 0.63], ['3.7 Sonnet', '25.2', 1.0], ['o3', '25.4', 2.0], ['GPT-5', '25.8', 3.6], ['Opus 4.5', '25.11', 5.3], ['GPT-5.2', '25.12', 6.6], ['Opus 4.6', '26.2', 12], ['Mythos P.', '26.4', 16]];
+  var xs = pts.map(function (p, i) { return X0 + 40 + i * ((X1 - X0 - 80) / (pts.length - 1)); });
+  var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + xs[i] + ' ' + ly(p[2]); }).join(' ');
+  var path = svg('path', { d: d, fill: 'none', stroke: '#E2734F', 'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, cs);
+  var plen = 0; // 길이는 렌더 후 계산
+  var dots = [], labs = [];
+  pts.forEach(function (p, i) {
+    var c = svg('circle', { cx: xs[i], cy: ly(p[2]), r: 9, fill: '#0A0A0B', stroke: '#E2734F', 'stroke-width': 4 }, cs); dots.push(c);
+    var t = svg('text', { x: xs[i], y: Y0 + 34, fill: '#8C8981', 'font-size': 15, 'text-anchor': 'middle' }, cs); t.textContent = p[0];
+    var t2 = svg('text', { x: xs[i], y: Y0 + 56, fill: '#5C5A55', 'font-size': 14, 'text-anchor': 'middle' }, cs); t2.textContent = "'" + p[1];
+    labs.push(t, t2);
+  });
+  var endTag = svg('text', { x: xs[10] + 22, y: ly(16) - 16, fill: '#F2EFE8', 'font-size': 30, 'font-weight': 800 }, cs); endTag.textContent = '16h+';
+  var axT = svg('text', { x: X0 - 18, y: ly(100) - 30, fill: '#6F6C66', 'font-size': 16, 'text-anchor': 'start' }, cs); axT.textContent = 'METR 50% TIME HORIZON · LOG SCALE';
+  tl.fromTo(chartB, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, immediateRender: true }, 30.8);
+  tl.from(labs, { opacity: 0, y: 10, duration: 0.4, stagger: 0.03 }, 31.0);
+  tl.add(function () {}, 31.2);
+  tl.fromTo(path, { strokeDasharray: 2000, strokeDashoffset: 2000 }, { strokeDashoffset: 0, duration: 5.5, ease: 'power1.inOut' }, 31.4);
+  dots.forEach(function (c, i) { tl.from(c, { attr: { r: 0 }, duration: 0.35, ease: 'back.out(3)' }, 31.4 + 5.5 * i / (pts.length - 1)); });
+  tl.from(endTag, { opacity: 0, x: -10, duration: 0.5 }, 37);
+  // 오른쪽: 배가 기간 막대
+  var dbl = el('div', '', '', chartB); pos(dbl, 1330, 470, 480);
+  el('div', 'label', 'DOUBLING TIME · 배가 기간', dbl);
+  var DB = [['2025.03 원 논문', 7.0, '#5C5A55'], ['2019년~ 전체', 6.5, '#8C8981'], ['2023년~', 4.3, '#E2734F'], ['2024년~', 2.9, '#F2A07F']];
+  DB.forEach(function (r, i) {
+    var row = el('div', '', '', dbl); row.style.marginTop = (i ? 26 : 22) + 'px';
+    var lab = el('div', '', '<span style="font-size:22px;color:#B9B5AC">' + r[0] + '</span><b style="float:right;font-size:30px;font-weight:850;color:' + (i > 1 ? r[2] : '#F2EFE8') + '">' + r[1] + '개월</b>', row);
+    var bar = el('div', '', '', row); bar.style.cssText = 'height:16px;border-radius:8px;margin-top:8px;background:' + r[2] + ';width:' + (r[1] / 7 * 460) + 'px';
+    tl.from(bar, { width: 0, duration: 0.9, ease: 'expo.out' }, 38.6 + i * 0.5);
+    tl.from(lab, { opacity: 0, x: 20, duration: 0.5 }, 38.5 + i * 0.5);
+  });
+  var dn = el('div', 'body', '측정 방식에 따라 최대 20% 하향 가능<br><span class="muted" style="font-size:24px">16시간 이상은 METR 측정 한계 밖</span>', dbl); dn.style.marginTop = '36px'; dn.style.fontSize = '26px';
+  fadeUp(dn, 42);
+
+  /* ============ 3. 벤치마크 (50–68) ============ */
+  var s3 = scene('s3'); show(s3, 50, 68);
+  chapterHead(s3, '02', '벤치마크 포화', '새 벤치마크도 <span class="coral">1년 안팎</span>에 포화된다', 50.3);
+  var c3 = svg('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, style: 'position:absolute;left:0;top:0' }, s3);
+  var BX0 = 200, BX1 = 1180, BY0 = 920, BY1 = 420;
+  function by(v) { return BY0 - v / 100 * (BY0 - BY1); }
+  [0, 25, 50, 75, 100].forEach(function (v) { svg('line', { x1: BX0, y1: by(v), x2: BX1, y2: by(v), stroke: '#26262B' }, c3); var t = svg('text', { x: BX0 - 16, y: by(v) + 6, fill: '#6F6C66', 'font-size': 17, 'text-anchor': 'end' }, c3); t.textContent = v + '%'; });
+  var bc = ["'25.8", "'25.11", "'25.12", "'26.2", "'26.3", "'26.4", "'26.6", "'26.7", "'26.9"];
+  var bxs = bc.map(function (c, i) { return BX0 + 30 + i * ((BX1 - BX0 - 60) / (bc.length - 1)); });
+  bc.forEach(function (c, i) { var t = svg('text', { x: bxs[i], y: BY0 + 36, fill: '#8C8981', 'font-size': 16, 'text-anchor': 'middle' }, c3); t.textContent = c; });
+  var a2 = [29.4, 37.6, 54.2, 77.1, 83.3, 84.6, 89.2, 92.5, 95.0];
+  var a3 = [[4, 0.4], [5, 0.4], [7, 30.2], [8, 62.7]];
+  var p2 = svg('path', { d: a2.map(function (v, i) { return (i ? 'L' : 'M') + bxs[i] + ' ' + by(v); }).join(' '), fill: 'none', stroke: '#B9B5AC', 'stroke-width': 4, 'stroke-linejoin': 'round' }, c3);
+  var p3 = svg('path', { d: a3.map(function (p, i) { return (i ? 'L' : 'M') + bxs[p[0]] + ' ' + by(p[1]); }).join(' '), fill: 'none', stroke: '#E2734F', 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, c3);
+  var l2 = svg('text', { x: bxs[8] + 18, y: by(95) + 8, fill: '#B9B5AC', 'font-size': 22, 'font-weight': 700 }, c3); l2.textContent = 'ARC-AGI-2  95.0%';
+  var l3 = svg('text', { x: bxs[8] + 18, y: by(62.7) + 8, fill: '#E2734F', 'font-size': 24, 'font-weight': 800 }, c3); l3.textContent = 'ARC-AGI-3  62.7%';
+  tl.from(c3, { opacity: 0, duration: 0.5 }, 51.4);
+  tl.fromTo(p2, { strokeDasharray: 1400, strokeDashoffset: 1400 }, { strokeDashoffset: 0, duration: 3.2, ease: 'power1.inOut' }, 51.8);
+  tl.from(l2, { opacity: 0, duration: 0.4 }, 54.8);
+  tl.fromTo(p3, { strokeDasharray: 1000, strokeDashoffset: 1000 }, { strokeDashoffset: 0, duration: 2.6, ease: 'power2.inOut' }, 55.6);
+  tl.from(l3, { opacity: 0, duration: 0.4 }, 58.1);
+  var r3 = el('div', '', '', s3); pos(r3, 1480, 430, 340);
+  tl.fromTo(r3, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, immediateRender: true }, 55.8);
+  el('div', 'label', 'ARC-AGI-3 · 공개 후 6개월', r3);
+  var r3a = el('div', 'h-l', '0.4%', r3); r3a.style.marginTop = '14px'; r3a.style.color = '#8C8981';
+  var r3b = el('div', 'h-xl coral', '', r3);
+  var r3c = el('div', 'body', 'GPQA Diamond <b style="color:#F2EFE8">96.0%</b><br>FrontierMath v2 <b style="color:#F2EFE8">93.7%</b>', r3); r3c.style.cssText += ';margin-top:30px;font-size:26px';
+  fadeUp(r3a, 56); tl.set(r3b, { textContent: '0.4%' }, 56.4); fadeUp(r3b, 56.4, 0.5, 20);
+  counter(r3b, 0.4, 62.7, 56.6, 2.4, 1, '%');
+  fadeUp(r3c, 59.5);
+  var w3 = pos(el('div', 'body', '※ 하반기 점수 다수는 회사 발표값 · SWE-bench Verified는 오염으로 보고 중단', s3), 200, 985); w3.style.fontSize = '22px'; w3.style.color = '#6F6C66';
+  fadeUp(w3, 61, 0.6, 10);
+
+  /* ============ 4. 투입과 확산 (68–90) ============ */
+  var s4 = scene('s4'); show(s4, 68, 90);
+  chapterHead(s4, '03', '투입과 확산', '투자는 3년 새 <span class="coral">4.7배</span>, 매출은 1년 새 <span class="coral">16배</span>', 68.3);
+  var cap = el('div', '', '', s4); pos(cap, 120, 380, 860);
+  el('div', 'label', 'BIG TECH 4 AI CAPEX · 억 달러', cap);
+  var CAP = [['2023', 1520], ['2024', 2510], ['2025', 4160], ['2026E', 7200]];
+  var capBox = el('div', '', '', cap); capBox.style.cssText = 'position:relative;height:480px;margin-top:20px';
+  CAP.forEach(function (c, i) {
+    var h = c[1] / 7200 * 400, x = i * 210;
+    var bar = el('div', '', '', capBox); bar.style.cssText = 'position:absolute;bottom:50px;left:' + x + 'px;width:150px;height:' + h + 'px;border-radius:10px 10px 0 0;' +
+      (i === 3 ? 'background:repeating-linear-gradient(135deg,#E2734F 0 10px,#C25E3D 10px 20px)' : 'background:linear-gradient(180deg,#F2A07F,#E2734F)');
+    var v = el('div', '', '', capBox); v.style.cssText = 'position:absolute;left:' + x + 'px;width:150px;text-align:center;font-weight:850;font-size:34px;bottom:' + (h + 62) + 'px';
+    var yl = el('div', 'label', c[0], capBox); yl.style.cssText += ';position:absolute;bottom:8px;left:' + x + 'px;width:150px;text-align:center';
+    tl.from(bar, { height: 0, duration: 1.1, ease: 'expo.out' }, 70 + i * 0.45);
+    tl.from(v, { opacity: 0, duration: 0.3 }, 70 + i * 0.45);
+    counter(v, 0, c[1], 70 + i * 0.45, 1.1, 0);
+    tl.from(yl, { opacity: 0, duration: 0.4 }, 70 + i * 0.45);
+  });
+  var capN = pos(el('div', 'body', '학습 컴퓨트 <b style="color:#F2EFE8">연 5배</b> · 알고리즘 효율 <b style="color:#F2EFE8">연 3배</b> · 같은 성능 추론 가격 <b style="color:#F2EFE8">연 40배↓</b>', s4), 120, 930, 1680);
+  capN.style.fontSize = '26px';
+  fadeUp(capN, 74);
+  var rev = el('div', '', '', s4); pos(rev, 1100, 380, 700);
+  el('div', 'label', 'ANTHROPIC ANNUALIZED REVENUE · RUN-RATE', rev);
+  var rv1 = el('div', 'h-m muted', '40억 달러 <span style="font-size:24px">(2025.07)</span>', rev); rv1.style.marginTop = '22px';
+  var rv2 = el('div', 'h-xxl coral', '', rev); rv2.style.marginTop = '4px';
+  var rv3 = el('div', 'h-m', '650억 달러 <span class="muted" style="font-size:24px">(2026.07)</span>', rev);
+  var rv4 = el('div', 'body', 'OpenAI 100억 → <b style="color:#F2EFE8">500억 달러+</b> (2025.06 → 2026.09)<br><span class="muted" style="font-size:22px">런레이트 = 최근 월 매출 × 12 · 감사 전 수치</span>', rev); rv4.style.cssText += ';margin-top:26px;font-size:26px';
+  fadeUp(rv1, 76.5); tl.set(rv2, { textContent: '×1' }, 77); fadeUp(rv2, 77, 0.5, 20);
+  counter(rv2, 1, 16, 77.2, 2.6, 0, '배', '×');
+  fadeUp(rv3, 79.4); fadeUp(rv4, 81);
+  tl.to(capN, { opacity: 0, duration: 0.3 }, 83.6);
+  var loopB = pos(el('div', 'h-l', '경제의 선순환이 <span class="coral">기술의 순환</span>과 겹친다', s4), 120, 920); loopB.style.fontSize = '54px';
+  typeIn(loopB, 84.3, { st: 0.02 });
+
+  /* ============ 5. RSI 증거 (90–116) ============ */
+  var s5 = scene('s5'); show(s5, 90, 116);
+  chapterHead(s5, '04', 'RSI의 현재 증거', 'AI가 연구소 코드의 <span class="coral">80%</span>를 쓴다. 그러나 실측 가속은 <span class="coral">2배 이하</span>', 90.3);
+  // A: 링 + 52배
+  var part5a = el('div', '', '', s5); pos(part5a, 0, 0);
+  var rs = svg('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, style: 'position:absolute;left:0;top:0' }, part5a);
+  var RC = [520, 650], RR = 200, CIRC = 2 * Math.PI * RR, RR2 = 160, CIRC2 = 2 * Math.PI * RR2;
+  svg('circle', { cx: RC[0], cy: RC[1], r: RR, fill: 'none', stroke: '#222226', 'stroke-width': 26 }, rs);
+  svg('circle', { cx: RC[0], cy: RC[1], r: RR2, fill: 'none', stroke: '#1C1C20', 'stroke-width': 18 }, rs);
+  var ring1 = svg('circle', { cx: RC[0], cy: RC[1], r: RR, fill: 'none', stroke: '#E2734F', 'stroke-width': 26, 'stroke-linecap': 'round', transform: 'rotate(-90 ' + RC[0] + ' ' + RC[1] + ')', 'stroke-dasharray': CIRC, 'stroke-dashoffset': CIRC }, rs);
+  var ring2 = svg('circle', { cx: RC[0], cy: RC[1], r: RR2, fill: 'none', stroke: '#4FD1C1', 'stroke-width': 18, 'stroke-linecap': 'round', transform: 'rotate(-90 ' + RC[0] + ' ' + RC[1] + ')', 'stroke-dasharray': CIRC2, 'stroke-dashoffset': CIRC2 }, rs);
+  tl.to(ring1, { attr: { 'stroke-dashoffset': CIRC * 0.2 }, duration: 2.2, ease: 'power2.inOut' }, 92.2);
+  tl.to(ring2, { attr: { 'stroke-dashoffset': CIRC2 * 0.25 }, duration: 2.2, ease: 'power2.inOut' }, 92.6);
+  var rn = pos(el('div', 'h-xl coral', '', part5a), 320, 600, 400); rn.style.textAlign = 'center'; rn.style.fontSize = '78px';
+  counter(rn, 0, 80, 92.2, 2.2, 0, '%+');
+  var rl = pos(el('div', 'label', '', part5a), 260, 880, 520); rl.style.textAlign = 'center';
+  rl.innerHTML = '<span style="color:#E2734F">●</span> ANTHROPIC 80%+ &nbsp; <span style="color:#4FD1C1">●</span> GOOGLE 75%';
+  fadeUp(rl, 93.5, 0.5, 10);
+  var f5 = el('div', '', '', part5a); pos(f5, 1000, 420, 820);
+  var f5a = el('div', 'label', 'TRAINING-SPEED OPTIMIZATION TASK · 초기 코드 대비', f5);
+  var f5b = el('div', '', '<span class="h-l muted">Opus 4 &nbsp;3배</span>', f5); f5b.style.marginTop = '20px';
+  var f5c = el('div', '', '<span class="h-xxl coral" id="x52"></span>', f5);
+  var f5d = el('div', 'body', 'Mythos Preview(2026.04) · 숙련 연구자 4~8시간 결과는 약 4배', f5); f5d.style.fontSize = '24px';
+  var f5e = el('div', 'body', 'OpenAI: 인간 1근무일당 <b style="color:#F2EFE8">3.1 에이전트-근무일</b> · 자동화 연구 인턴 달성 발표(2026.09)', f5); f5e.style.cssText += ';margin-top:28px;font-size:24px';
+  fadeUp(f5a, 95); fadeUp(f5b, 95.4);
+  tl.set('#x52', { textContent: '3배' }, 96); fadeUp(f5c, 96, 0.5, 20);
+  counter($('#x52', f5c), 3, 52, 96.2, 2.2, 0, '배');
+  fadeUp(f5d, 98.4); fadeUp(f5e, 99.4);
+  tl.to(part5a, { opacity: 0, y: -40, duration: 0.6, ease: 'power2.in' }, 103.4);
+  var part5bRef = null;
+  // B: 가속 배수 막대
+  var part5b = el('div', '', '', s5); pos(part5b, 120, 400, 1680);
+  el('div', 'label', 'ESTIMATED AI R&D SPEED-UP · 연구 가속 배수', part5b);
+  tl.fromTo(part5b, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, immediateRender: true }, 104.2);
+  var UP = [['METR 무작위 대조 실험', 1.1, 1], ['METR 내부 평가(미검증)', 1.5, 0], ['Greenblatt 추정', 1.7, 0], ['Kokotajlo 추정', 2.0, 0], ['Anthropic 연구자 자가보고', 4.0, 2]];
+  var upBox = el('div', '', '', part5b); upBox.style.cssText = 'position:relative;margin-top:24px;height:470px';
+  var SCALE = 280; // 1배 = 280px
+  UP.forEach(function (u, i) {
+    var y = i * 86;
+    var nm = el('div', '', u[0], upBox); nm.style.cssText = 'position:absolute;left:0;top:' + (y + 10) + 'px;width:470px;font-size:28px;font-weight:600;color:' + (u[2] ? '#F2EFE8' : '#8C8981');
+    var b = el('div', '', '', upBox); b.style.cssText = 'position:absolute;left:500px;top:' + y + 'px;height:56px;border-radius:8px;width:' + (u[1] * SCALE) + 'px;background:' + (u[2] === 1 ? '#4FD1C1' : u[2] === 2 ? '#E2734F' : '#3A3A40');
+    var v = el('div', '', u[1].toFixed(1) + '배', upBox); v.style.cssText = 'white-space:nowrap;position:absolute;top:' + (y + 6) + 'px;left:' + (520 + u[1] * SCALE) + 'px;font-size:32px;font-weight:850;color:' + (u[2] ? '#F2EFE8' : '#8C8981');
+    tl.from(b, { width: 0, duration: 0.9, ease: 'expo.out' }, 104.6 + i * 0.4);
+    tl.from([nm, v], { opacity: 0, duration: 0.4 }, 104.6 + i * 0.4);
+  });
+  var thr = el('div', '', '', upBox); thr.style.cssText = 'position:absolute;top:-20px;bottom:0;left:' + (500 + 2 * SCALE) + 'px;width:0;border-left:3px dashed #E9C46A';
+  var thrL = el('div', '', 'RSP 기준 · 진보 2배', upBox); thrL.style.cssText = 'position:absolute;top:440px;left:' + (500 + 2 * SCALE - 120) + 'px;font-family:var(--mono);font-size:20px;color:#E9C46A;letter-spacing:.08em';
+  tl.from(thr, { scaleY: 0, transformOrigin: 'top', duration: 0.7 }, 107);
+  tl.from(thrL, { opacity: 0, duration: 0.4 }, 107.3);
+  var up2 = pos(el('div', 'h-m', '측정이 엄격할수록 <span class="teal">낮고</span>, 자가보고일수록 <span class="coral">높다</span>', s5), 120, 920); up2.style.fontSize = '44px';
+  typeIn(up2, 109, { st: 0.018 });
+
+  /* ============ 6. 임계치·예측 (116–134) ============ */
+  var s6 = scene('s6'); show(s6, 116, 134);
+  chapterHead(s6, '05', '안전 임계치와 예측 시점', '3사 모두 미도달. 그러나 Anthropic은 <span class="coral">"임박"</span>을 공시했다', 116.3);
+  var CARDS = [['ANTHROPIC · RSP v3.4', 'AI로 2년치 진보를<br>1년에 달성', '임박 공시 · 2026.11.02', '#E2734F'],
+               ['OPENAI · PREPAREDNESS v2', '세대 개선을 1/5 시간에<br>(5배 가속)', '미도달 · HIGH 미만', '#8C8981'],
+               ['GOOGLE DEEPMIND · FSF v3.1', '알고리즘 진보<br>3배 가속', '미도달 · 경보 임계 미만', '#8C8981']];
+  var cardEls = CARDS.map(function (c, i) {
+    var cd = pos(el('div', 'card', '<div class="who">' + c[0] + '</div><div class="what">' + c[1] + '</div><div class="stamp" style="color:' + c[3] + '">' + c[2] + '</div>', s6), 120 + i * 570, 400);
+    if (i === 0) { cd.style.borderColor = '#E2734F'; cd.style.background = 'rgba(226,115,79,.07)'; }
+    tl.from(cd, { y: 70, opacity: 0, duration: 0.8 }, 118 + i * 0.35);
+    tl.from(cd.querySelector('.stamp'), { scale: 1.8, opacity: 0, duration: 0.45, ease: 'back.out(2)' }, 119.6 + i * 0.35);
+    return cd;
+  });
+  var c6n = pos(el('div', 'body', '평가 세트 포화 → 판정이 연구자 설문에 의존 · 내부 모델 사용량 9개월 새 <b style="color:#F2EFE8">250배+</b>', s6), 120, 760, 1680); c6n.style.fontSize = '28px';
+  fadeUp(c6n, 121.4);
+  tl.to(cardEls.concat([c6n]), { y: -30, opacity: 0, duration: 0.5, ease: 'power2.in', stagger: 0.05 }, 124.6);
+  // 예측 변화
+  var fc = el('div', '', '', s6); pos(fc, 120, 390, 1680);
+  el('div', 'label', 'AI FUTURES PROJECT · 자동화 코더(AC) 도달 중앙값', fc);
+  var FC = [['Kokotajlo', 2029.9, 2027.9, '#E2734F'], ['Lifland', 2032.1, 2030.0, '#B9B5AC']];
+  var fcs = svg('svg', { width: 1680, height: 430, viewBox: '0 0 1680 430', style: 'position:absolute;left:0;top:50px' }, fc);
+  function fxv(y) { return 80 + (y - 2026) / 8 * 1500; }
+  for (var yy = 2026; yy <= 2034; yy += 2) { svg('line', { x1: fxv(yy), y1: 30, x2: fxv(yy), y2: 330, stroke: '#26262B' }, fcs); var tt = svg('text', { x: fxv(yy), y: 370, fill: '#6F6C66', 'font-size': 20, 'text-anchor': 'middle' }, fcs); tt.textContent = yy; }
+  FC.forEach(function (f, i) {
+    var y = 110 + i * 140;
+    var nm = svg('text', { x: 0, y: y - 40, fill: f[3], 'font-size': 24, 'font-weight': 700 }, fcs); nm.textContent = f[0];
+    var from = svg('circle', { cx: fxv(f[1]), cy: y, r: 12, fill: '#0A0A0B', stroke: '#5C5A55', 'stroke-width': 4 }, fcs);
+    var ft = svg('text', { x: fxv(f[1]), y: y - 26, fill: '#6F6C66', 'font-size': 20, 'text-anchor': 'middle' }, fcs); ft.textContent = "'25.12 · " + f[1].toFixed(1);
+    var ln = svg('line', { x1: fxv(f[1]), y1: y, x2: fxv(f[2]), y2: y, stroke: f[3], 'stroke-width': 6, 'stroke-linecap': 'round' }, fcs);
+    var to = svg('circle', { cx: fxv(f[2]), cy: y, r: 16, fill: f[3] }, fcs);
+    var tt2 = svg('text', { x: fxv(f[2]), y: y + 52, fill: '#F2EFE8', 'font-size': 26, 'font-weight': 800, 'text-anchor': 'middle' }, fcs); tt2.textContent = "'26.8 · " + (i ? '2030.01' : '2027.11');
+    tl.from([nm, from, ft], { opacity: 0, duration: 0.5 }, 125.6 + i * 0.4);
+    tl.fromTo(ln, { attr: { x2: fxv(f[1]) } }, { attr: { x2: fxv(f[2]) }, duration: 1.4, ease: 'power3.inOut' }, 126.4 + i * 0.4);
+    tl.fromTo(to, { attr: { cx: fxv(f[1]) } }, { attr: { cx: fxv(f[2]) }, duration: 1.4, ease: 'power3.inOut' }, 126.4 + i * 0.4);
+    tl.from(tt2, { opacity: 0, duration: 0.4 }, 127.8 + i * 0.4);
+  });
+  tl.fromTo(fc, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, immediateRender: true }, 125.2);
+  var fcN = pos(el('div', 'h-m', '8개월 새 <span class="coral">1~2년 앞당겨짐</span> <span class="muted" style="font-size:30px">— Metaculus는 오히려 2033년으로 늦춤</span>', s6), 120, 930); fcN.style.fontSize = '42px';
+  fadeUp(fcN, 129);
+
+  /* ============ 7. 병목·시나리오 (134–152) ============ */
+  var s7 = scene('s7'); show(s7, 134, 152);
+  chapterHead(s7, '06', '병목과 시나리오', '폭발 여부는 <span class="coral">병목</span>이 좌우한다', 134.3);
+  var BN = ['컴퓨트', '전력', '실험 시간', '측정', '자본'];
+  var bnWrap = el('div', '', '', s7); pos(bnWrap, 120, 380, 1680);
+  var bnSub = ['실험 컴퓨트가 상한', '2030년 학습 4~16GW', '검증 주기는 압축 한계', '가속을 사후에야 인지', '매출 둔화 시 제동'];
+  BN.forEach(function (b, i) {
+    var it = el('div', '', '<div style="font-size:46px;font-weight:850">' + b + '</div><div style="font-size:21px;color:#8C8981;margin-top:6px">' + bnSub[i] + '</div>', bnWrap);
+    it.style.cssText = 'position:absolute;left:' + (i * 336) + 'px;top:0;width:310px;padding:22px 24px;border-top:3px solid ' + (i === 0 ? '#E2734F' : '#3A3A40');
+    tl.from(it, { y: 40, opacity: 0, duration: 0.6 }, 136 + i * 0.25);
+  });
+  var scW = el('div', '', '', s7); pos(scW, 120, 600, 1680);
+  el('div', 'label', 'SCENARIOS TO 2030 · 가능성(분석자 판단)', scW);
+  var SC = [['A. 병목형 가속', '연구 가속 2~3배에서 정체', 45, 55, '#E2734F', '반반'], ['B. 제한적 지능 폭발', '1년에 3년치 진보', 20, 45, '#E9C46A', '낮음'], ['C. 급진 시나리오', '1년에 10년치 진보', 5, 20, '#8C8981', '매우 낮음']];
+  SC.forEach(function (s, i) {
+    var y = 50 + i * 100;
+    var nm = el('div', '', '<b style="font-size:34px;font-weight:850">' + s[0] + '</b><div style="font-size:21px;color:#8C8981">' + s[1] + '</div>', scW); nm.style.cssText = 'position:absolute;left:0;top:' + y + 'px;width:520px';
+    var track = el('div', '', '', scW); track.style.cssText = 'position:absolute;left:560px;top:' + (y + 14) + 'px;width:1000px;height:28px;border-radius:14px;background:#1C1C20';
+    var band = el('div', '', '', track); band.style.cssText = 'position:absolute;top:0;bottom:0;border-radius:14px;left:' + (s[2] * 10) + 'px;width:' + ((s[3] - s[2]) * 10) + 'px;background:' + s[4];
+    var lab = el('div', '', s[2] + '~' + s[3] + '% · ' + s[5], scW); lab.style.cssText = 'position:absolute;top:' + (y + 52) + 'px;left:' + (560 + s[2] * 10) + 'px;font-family:var(--mono);font-size:20px;color:' + s[4];
+    tl.from(nm, { opacity: 0, x: -20, duration: 0.5 }, 140 + i * 0.6);
+    tl.from(track, { scaleX: 0, transformOrigin: 'left', duration: 0.6 }, 140.2 + i * 0.6);
+    tl.from(band, { scaleX: 0, opacity: 0, duration: 0.7, ease: 'expo.out' }, 140.6 + i * 0.6);
+    tl.from(lab, { opacity: 0, duration: 0.4 }, 141 + i * 0.6);
+  });
+  var s7n = pos(el('div', 'h-m', '어느 쪽이든 <span class="coral">"변화 없음"</span>은 선택지에 없다', s7), 120, 955); s7n.style.fontSize = '40px';
+  typeIn(s7n, 145.5, { st: 0.02 });
+
+  /* ============ 8. 영향 (152–166) ============ */
+  var s8 = scene('s8'); show(s8, 152, 166);
+  chapterHead(s8, '07', '파급 영향', '영향은 이미 <span class="coral">시작됐다</span>', 152.3);
+  var IM = [['-20%', '22~25세 개발자 고용', '2022년 말 정점 대비 · Stanford DEL', '#E5534B'], ['2주', '프런티어 학습 중단', 'OpenAI 내부 에이전트의 인프라 침해 · 2026.07', '#E2734F'],
+            ['78%', '미국 신규 AI 컴퓨트', '2026년 상반기 · 중국 약 10%', '#E9C46A'], ['2026.08', 'EU AI Act 범용 AI 집행', '벌금 매출 3% · SB 53은 2026.01 시행', '#4FD1C1']];
+  IM.forEach(function (m, i) {
+    var x = 120 + (i % 2) * 850, y = 380 + Math.floor(i / 2) * 290;
+    var b = pos(el('div', '', '<div style="font-size:112px;font-weight:900;letter-spacing:-0.04em;line-height:1;color:' + m[3] + '">' + m[0] + '</div><div style="font-size:36px;font-weight:800;margin-top:12px">' + m[1] + '</div><div style="font-family:var(--mono);font-size:18px;letter-spacing:.06em;color:#6F6C66;margin-top:8px">' + m[2] + '</div>', s8), x, y, 800);
+    tl.from(b, { y: 50, opacity: 0, duration: 0.7 }, 154 + i * 0.7);
+    tl.from(b.firstChild, { scale: 1.25, transformOrigin: 'left bottom', duration: 0.8, ease: 'expo.out' }, 154 + i * 0.7);
+  });
+
+  /* ============ 9. 대응 + 엔딩 (166–180) ============ */
+  var s9 = scene('s9'); show(s9, 166, 180);
+  var e9 = pos(el('div', '', '', s9), 0, 0, 1920); e9.style.height = '1080px';
+  var k9 = pos(el('div', 'kicker', '08 · RESPONSE', e9), 120, 160);
+  var h9 = pos(el('div', 'h-xl', '예측보다, <span class="coral">신호</span>를 보라', e9), 120, 210);
+  typeIn(k9, 166.2, { y: 0, st: 0.03 }); typeIn(h9, 166.5, { st: 0.04 });
+  var SG = [['연구소 AI R&D 임계치 공식 도달 선언', '0곳 → 1곳 이상'], ['독립 측정 AI R&D 가속 배수', '1.1~2배 → 3배 이상'], ['METR 작업 지평', '16시간 → 1주 과제'], ['빅테크 AI 설비투자', '증가 → 감소 전환'], ['AI 에이전트 중대 사고', '분기 2건 이상']];
+  SG.forEach(function (s, i) {
+    var r = pos(el('div', '', '<span style="font-family:var(--mono);color:#E2734F;font-size:24px;margin-right:22px">0' + (i + 1) + '</span><span style="font-size:34px;font-weight:750">' + s[0] + '</span><span style="float:right;font-family:var(--mono);font-size:24px;color:#B9B5AC;margin-top:6px">' + s[1] + '</span>', e9), 120, 410 + i * 82, 1680);
+    r.style.borderBottom = '1px solid #26262B'; r.style.paddingBottom = '18px';
+    tl.from(r, { x: -40, opacity: 0, duration: 0.55 }, 168.4 + i * 0.4);
+  });
+  var a9 = pos(el('div', 'body', '2027년 계획에 <b style="color:#F2EFE8">AI 역량 가정 반기 재점검</b>을 내장할 것', e9), 120, 845); a9.style.fontSize = '30px';
+  fadeUp(a9, 171);
+  tl.to(e9, { opacity: 0, duration: 0.6, ease: 'power2.in' }, 173.6);
+  var b9 = burst(s9, 960, 440, 30, 190, 18, '#E2734F', 14);
+  tl.from(b9.lines, { attr: { x2: 960, y2: 440 }, opacity: 0, duration: 1.0, stagger: 0.03, ease: 'expo.out' }, 174.2);
+  tl.to(b9.g, { rotate: 30, svgOrigin: '960 440', duration: 6, ease: 'none' }, 174);
+  var end1 = pos(el('div', 'center h-l', 'AI가 AI를 만드는 시대의 계획법', s9), 0, 720); end1.style.fontSize = '60px';
+  typeIn(end1, 175, { st: 0.03 });
+  var end2 = pos(el('div', 'center label', 'MADE WITH CLAUDE OPUS 5.5 · DATA: METR · EPOCH AI · ARC PRIZE · ANTHROPIC · OPENAI · AI FUTURES PROJECT', s9), 0, 820);
+  fadeUp(end2, 176.4, 0.8, 10);
+  var end3 = pos(el('div', 'center label', '분석자 판단 포함 · ANTHROPIC 관련 수치는 회사 자체 발표', s9), 0, 860); end3.style.fontSize = '15px';
+  fadeUp(end3, 176.8, 0.8, 10);
+  tl.to('#stage', { opacity: 1, duration: 0.01 }, DUR - 0.01); // 길이 고정
+  tl.to(['#scenes', '#bg-glow'], { opacity: 0, duration: 1.2, ease: 'power1.in' }, DUR - 1.2);
+
+  // 재생/렌더 API
+  window.__seek = function (t) { tl.seek(t, false); };
+  window.__duration = DUR;
+  window.__ready = document.fonts.ready.then(function () { tl.seek(0); return true; });
+  if (!R) {
+    var music = $('#music');
+    $('#play').addEventListener('click', function () {
+      $('#play').style.display = 'none';
+      tl.play(0); try { music.currentTime = 0; music.play(); } catch (e) {}
+    });
+    addEventListener('keydown', function (e) { if (e.code === 'Space') { if (tl.paused()) { tl.play(); music.play(); } else { tl.pause(); music.pause(); } } });
+    tl.seek(0);
+  }
+})();
+</script>
+</body>
+</html>

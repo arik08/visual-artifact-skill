@@ -5,3 +5,6 @@ __pycache__/
 vertical-html-report/assets/vendor/
 .DS_Store
 Thumbs.db
+*.wav
+*_noaudio.mp4
+reports/ai/motion/render.log
