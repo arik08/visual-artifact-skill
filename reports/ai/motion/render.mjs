@@ -11,7 +11,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const CHROME = process.env.CHROME || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const PORT = 9333 + Math.floor(Math.random() * 500);
 const [, , mode = 'frames', arg1 = '5', arg2] = process.argv;
-const url = pathToFileURL(join(here, 'ai_rsi_motion.html')).href + '?render';
+const url = pathToFileURL(join(here, process.env.MOTION_FILE || 'ai_rsi_motion.html')).href + '?render';
 
 const chrome = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${PORT}`, '--hide-scrollbars', '--mute-audio',
   '--force-device-scale-factor=1', '--window-size=1920,1080', '--disable-gpu-vsync', '--run-all-compositor-stages-before-draw',
@@ -59,7 +59,7 @@ async function shot(t, format = 'png', quality) {
 
 if (mode === 'frames') {
   for (const t of arg1.split(',').map(Number)) {
-    const f = join(here, `preview_${String(t).replace('.', '_')}.png`);
+    const f = join(here, `${(process.env.MOTION_FILE || 'ai_rsi').split('.')[0]}_p${String(t).replace('.', '_')}.png`);
     writeFileSync(f, await shot(t));
     console.log('saved', f);
   }

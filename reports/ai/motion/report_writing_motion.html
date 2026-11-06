@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI로 회사 보고서 잘 쓰는 법 — 모션그래픽</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root {
+    --bg: #0B0B0D; --ink: #F2EFE8; --ink2: #B9B5AC; --muted: #6F6C66; --line: #232327;
+    --coral: #E2734F; --coral2: #F2A07F; --teal: #4FD1C1; --gold: #E9C46A; --red: #E5534B;
+    --sans: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: var(--sans); color: var(--ink); }
+  #stage { position: relative; width: 1920px; height: 1080px; background: var(--bg); overflow: hidden; flex: none; }
+  #bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.033) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.033) 1px, transparent 1px); background-size: 80px 80px; }
+  #bg-glow { position: absolute; width: 1500px; height: 1500px; left: 200px; top: -300px; border-radius: 50%; background: radial-gradient(circle, rgba(226,115,79,.18) 0%, rgba(226,115,79,.05) 38%, transparent 66%); }
+  #bg-glow2 { position: absolute; width: 1100px; height: 1100px; left: 1100px; top: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(79,209,193,.08) 0%, transparent 62%); }
+  #bg-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.66) 100%); }
+  .hud { position: absolute; font-family: var(--mono); font-size: 18px; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; z-index: 20; }
+  .hud b { color: var(--ink2); font-weight: 700; }
+  #hud-tl { left: 72px; top: 56px; } #hud-tr { right: 72px; top: 56px; } #hud-tr b { color: var(--coral); }
+  #hud-bl { left: 72px; bottom: 50px; font-size: 15px; letter-spacing: .12em; } #hud-br { right: 72px; bottom: 50px; font-size: 15px; }
+  #progress { position: absolute; left: 72px; right: 72px; bottom: 32px; height: 2px; background: var(--line); z-index: 20; }
+  #progress i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--coral); }
+  .tick { position: absolute; top: -4px; width: 2px; height: 10px; background: #3A3A40; }
+  #beat { position: absolute; right: 72px; top: 92px; display: flex; gap: 6px; z-index: 20; }
+  #beat i { width: 10px; height: 10px; border-radius: 2px; background: #2A2A2F; }
+  .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+  .kicker { font-family: var(--mono); font-size: 22px; letter-spacing: .3em; color: var(--coral); font-weight: 700; }
+  .h-xxl { font-size: 150px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.02; }
+  .h-xl { font-size: 104px; font-weight: 900; letter-spacing: -0.035em; line-height: 1.1; }
+  .h-l { font-size: 72px; font-weight: 850; letter-spacing: -0.03em; line-height: 1.15; }
+  .h-m { font-size: 46px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.3; }
+  .body { font-size: 30px; font-weight: 500; color: var(--ink2); line-height: 1.55; }
+  .coral { color: var(--coral); } .teal { color: var(--teal); } .muted { color: var(--muted); } .gold { color: var(--gold); }
+  .ch-head { position: absolute; left: 120px; top: 150px; display: flex; align-items: baseline; gap: 28px; }
+  .ch-num { font-family: var(--mono); font-size: 30px; font-weight: 800; color: var(--bg); background: var(--coral); padding: 4px 14px; border-radius: 6px; }
+  .ch-title { font-size: 40px; font-weight: 800; }
+  .ch-lead { position: absolute; left: 120px; top: 222px; font-size: 64px; font-weight: 850; letter-spacing: -0.03em; line-height: 1.15; width: 1680px; }
+  .char { display: inline-block; white-space: pre; } .word { display: inline-block; white-space: nowrap; }
+  .label { font-family: var(--mono); font-size: 18px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  .box { position: absolute; border: 1px solid #2E2E33; border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012)); }
+  .tag { display: inline-block; font-family: var(--mono); font-weight: 800; font-size: 20px; letter-spacing: .1em; padding: 6px 14px; border-radius: 8px; border: 2px solid currentColor; }
+  .num-hl { background: rgba(226,115,79,.22); color: var(--coral2); border-radius: 6px; padding: 0 6px; }
+  .wipe { position: absolute; top: 0; bottom: 0; width: 2400px; left: -2500px; z-index: 30; background: linear-gradient(90deg, transparent 0, var(--coral) 18%, var(--coral) 82%, transparent 100%); }
+  #play { position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 26px; background: rgba(11,11,13,.74); cursor: pointer; font-family: var(--mono); letter-spacing: .2em; color: var(--ink2); font-size: 22px; }
+  #play .btn { width: 140px; height: 140px; border-radius: 50%; border: 2px solid var(--coral); display: flex; align-items: center; justify-content: center; }
+  #play .btn::after { content: ""; margin-left: 10px; border-left: 44px solid var(--coral); border-top: 28px solid transparent; border-bottom: 28px solid transparent; }
+  #play small { font-size: 16px; color: var(--muted); letter-spacing: .12em; }
+  body.render #play { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg-grid"></div><div id="bg-glow"></div><div id="bg-glow2"></div><div id="bg-vig"></div>
+  <div class="hud" id="hud-tl"><b>WRITING REPORTS WITH AI</b> &nbsp;— A REFLECTION</div>
+  <div class="hud" id="hud-tr"><b id="chap">00 / 08 · INTRO</b></div>
+  <div id="beat"><i></i><i></i><i></i><i></i></div>
+  <div class="hud" id="hud-bl"><span id="src">BASED ON · VERTICAL-HTML-REPORT SKILL · 2026.11</span></div>
+  <div class="hud" id="hud-br"><span id="tc">00:00</span></div>
+  <div id="progress"><i></i></div>
+  <div class="wipe" id="wipe"></div>
+  <div id="scenes"></div>
+  <div id="play"><div class="btn"></div><div>CLICK TO PLAY · 3:00 · SOUND ON</div><small>SPACE 일시정지 · 우클릭 전체화면</small></div>
+</div>
+
+<script>
+(function () {
+  var W = 1920, H = 1080, DUR = 180, BPM = 100, BAR = 60 / BPM * 4; // 2.4초
+  var R = location.search.indexOf('render') >= 0;
+  if (R) document.body.classList.add('render');
+  var stage = document.getElementById('stage');
+  function fit() { if (R) return; var s = Math.min(innerWidth / W, innerHeight / H); stage.style.transform = 'scale(' + s + ')'; }
+  addEventListener('resize', fit); fit();
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var root = $('#scenes'), NS = 'http://www.w3.org/2000/svg';
+  function el(tag, cls, html, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; (parent || root).appendChild(e); return e; }
+  function svg(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function pos(e, x, y, w) { e.style.position = 'absolute'; if (x != null) e.style.left = x + 'px'; if (y != null) e.style.top = y + 'px'; if (w) e.style.width = w + 'px'; return e; }
+  function scene(id) { var s = el('div', 'scene'); s.id = id; return s; }
+  function split(e) {
+    var tmp = document.createElement('div'); tmp.innerHTML = e.innerHTML;
+    function walk(n, cls) {
+      var s = '';
+      n.childNodes.forEach(function (c) {
+        if (c.nodeType === 3) {
+          c.textContent.split(/(\s+)/).forEach(function (w) {
+            if (!w) return;
+            if (/^\s+$/.test(w)) { s += '<span class="char"> </span>'; return; }
+            s += '<span class="word">' + Array.from(w).map(function (ch) { return '<span class="char' + (cls ? ' ' + cls : '') + '">' + ch + '</span>'; }).join('') + '</span>';
+          });
+        } else if (c.nodeName === 'BR') s += '<br>';
+        else s += walk(c, c.className);
+      });
+      return s;
+    }
+    e.innerHTML = walk(tmp, '');
+    return e.querySelectorAll('.char');
+  }
+  var tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  window.__tl = tl;
+  function B(n) { return n * BAR; } // 마디 → 초
+
+  // HUD
+  tl.to('#progress i', { width: '100%', duration: DUR, ease: 'none' }, 0);
+  var tcObj = { t: 0 };
+  tl.to(tcObj, { t: DUR, duration: DUR, ease: 'none', onUpdate: function () { var t = Math.floor(tcObj.t); $('#tc').textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); } }, 0);
+  tl.to('#bg-glow', { x: 260, y: 160, duration: DUR, ease: 'sine.inOut' }, 0);
+  tl.to('#bg-glow2', { x: -500, y: -200, duration: DUR, ease: 'sine.inOut' }, 0);
+  tl.to('#bg-grid', { backgroundPosition: '400px 0px', duration: DUR, ease: 'none' }, 0);
+  // 박자 표시(4칸): 비트마다 점등
+  var beats = document.querySelectorAll('#beat i');
+  for (var bt = 0; bt < DUR / (BAR / 4); bt++) {
+    var bi = beats[bt % 4];
+    tl.fromTo(bi, { background: '#E2734F' }, { background: '#2A2A2F', duration: 0.5, ease: 'power2.out', immediateRender: false }, bt * BAR / 4);
+  }
+
+  // 장면 시작 마디: 0, 4, 9, 17, 25, 32, 40, 48, 56, 64 → 75마디(180초)
+  var CH = [[0, '00', 'INTRO', 'BASED ON · VERTICAL-HTML-REPORT SKILL · 2026.11'],
+    [4, '00', 'THESIS', 'WHAT CHANGES WHEN WRITING BECOMES CHEAP'],
+    [9, '01', 'CONCLUSION FIRST', 'PYRAMID PRINCIPLE · 국가공무원인재개발원 보고서 교재'],
+    [17, '02', 'NUMBER DIET', 'POSCO REPORT REVISION · 2026.11 · LINT: LEAD ≤ 60 CHARS'],
+    [25, '03', 'CUT THE UNREAD', 'APPENDIX FORMULA LISTS REMOVED · LINT WARNS ON CALCULATION DUMPS'],
+    [32, '04', 'FACT · JUDGEMENT', 'ICD 203 ANALYTIC STANDARDS · ESTIMATIVE LANGUAGE'],
+    [40, '05', 'END IN ACTION', 'OWNER · DEADLINE · METRIC — 국가공무원인재개발원'],
+    [48, '06', 'KIT FOR DESIGN', 'REPORT-KIT · ECHARTS · 22 CHART TYPES · 6 THEMES'],
+    [56, '07', 'AUTOMATE CHECKS', 'LINT · STORYLINE · RENDER CHECK · HAIKU TEST'],
+    [64, '08', 'TAKEAWAY', 'MADE WITH CLAUDE OPUS 5.5 · MUSIC: TONE.JS (LIVE SYNTH)']];
+  CH.forEach(function (c, i) {
+    var t = B(c[0]);
+    tl.set('#chap', { textContent: c[1] + ' / 08 · ' + c[2] }, t);
+    tl.set('#src', { textContent: c[3] }, t);
+    if (i > 0) {
+      tl.fromTo('#wipe', { x: 0 }, { x: 4600, duration: 0.8, ease: 'power2.inOut', immediateRender: false }, t - 0.4);
+      var tk = document.createElement('i'); tk.className = 'tick'; tk.style.left = (t / DUR * 100) + '%'; $('#progress').appendChild(tk);
+    }
+  });
+  function show(s, t0, t1) { tl.set(s, { autoAlpha: 1 }, t0); if (t1 != null) tl.to(s, { autoAlpha: 0, duration: 0.3, ease: 'power1.in' }, t1 - 0.3); }
+  function hideUntil(e, t, d) { tl.fromTo(e, { autoAlpha: 0 }, { autoAlpha: 1, duration: d || 0.5, immediateRender: true }, t); }
+  function typeIn(e, at, o) { o = o || {}; var cs = split(e); tl.from(cs, { yPercent: o.y != null ? o.y : 110, opacity: 0, duration: o.d || 0.7, stagger: o.st || 0.025, ease: 'expo.out' }, at); return cs; }
+  function fadeUp(e, at, d, y) { tl.from(e, { y: y != null ? y : 40, opacity: 0, duration: d || 0.8 }, at); }
+  function head(sc, num, title, lead, at) {
+    var h = el('div', 'ch-head', '<span class="ch-num">' + num + '</span><span class="ch-title">' + title + '</span>', sc);
+    tl.from(h.children[0], { scaleX: 0, transformOrigin: 'left center', duration: 0.6, ease: 'expo.out' }, at + 0.1);
+    tl.from(h.children[1], { x: -30, opacity: 0, duration: 0.6 }, at + 0.25);
+    typeIn(el('div', 'ch-lead', lead, sc), at + 0.45, { st: 0.018 });
+  }
+  function counter(e, from, to, at, d, dec, suf, pre) {
+    var o = { v: from }; var f = function (v) { return (pre || '') + v.toLocaleString('ko-KR', { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 }) + (suf || ''); };
+    e.textContent = f(from);
+    tl.to(o, { v: to, duration: d, ease: 'power2.out', onUpdate: function () { e.textContent = f(o.v); } }, at);
+  }
+
+  /* ===== S0 훅 (0–4마디) ===== */
+  var s0 = scene('s0'); show(s0, 0, B(4));
+  // 쌓이는 보고서 더미
+  for (var p = 0; p < 14; p++) {
+    var pg = el('div', 'box', '', s0);
+    var px = 1000 + (p % 2 ? 14 : -10) + (p * 7) % 23, py = 560 - p * 22;
+    pos(pg, px, py, 400); pg.style.height = '520px'; pg.style.transform = 'rotate(' + ((p * 37) % 9 - 4) + 'deg)'; pg.style.background = p === 13 ? '#16161A' : '#121215';
+    pg.innerHTML = '<div style="margin:36px 34px;height:14px;width:60%;background:#2A2A30;border-radius:4px"></div>' + Array(6).fill('<div style="margin:16px 34px;height:8px;background:#212126;border-radius:4px"></div>').join('');
+    tl.from(pg, { y: -900, rotate: (p % 3 - 1) * 20, duration: 0.7, ease: 'power3.in' }, 0.2 + p * 0.18);
+  }
+  var k0 = pos(el('div', 'kicker', 'ON WRITING COMPANY REPORTS WITH AI', s0), 120, 300);
+  typeIn(k0, 0.6, { y: 0, st: 0.03 });
+  var t0a = pos(el('div', 'h-l', 'AI는 보고서를<br>몇 분 만에 쓴다', s0), 120, 370, 700);
+  typeIn(t0a, 1.4, { st: 0.04 });
+  var t0b = pos(el('div', 'h-l coral', '그런데 왜<br>읽히지 않을까', s0), 1450, 640, 480);
+  typeIn(t0b, 4.6, { st: 0.05 });
+
+  /* ===== S1 명제 (4–9마디) ===== */
+  var s1 = scene('s1'); show(s1, B(4), B(9));
+  var t1 = pos(el('div', 'center h-xl', '쓰기는 <span class="muted">싸졌다.</span><br>판단은 <span class="coral">아니다.</span>', s1), 0, 230);
+  typeIn(t1, B(4) + 0.3, { st: 0.05 });
+  var g1 = svg('svg', { width: W, height: H, viewBox: '0 0 1920 1080', style: 'position:absolute;left:0;top:0' }, s1);
+  var lw = svg('path', { d: 'M420 620 C 600 640, 700 800, 900 860', fill: 'none', stroke: '#6F6C66', 'stroke-width': 5, 'stroke-linecap': 'round' }, g1);
+  var lj = svg('path', { d: 'M1020 860 C 1200 840, 1300 680, 1500 610', fill: 'none', stroke: '#E2734F', 'stroke-width': 6, 'stroke-linecap': 'round' }, g1);
+  var tw = svg('text', { x: 420, y: 600, fill: '#8C8981', 'font-size': 22, 'letter-spacing': 3 }, g1); tw.textContent = 'COST OF WRITING ↓';
+  var tj = svg('text', { x: 1500, y: 590, fill: '#E2734F', 'font-size': 22, 'text-anchor': 'end', 'letter-spacing': 3 }, g1); tj.textContent = 'VALUE OF JUDGEMENT ↑';
+  tl.fromTo([lw, lj], { strokeDasharray: 700, strokeDashoffset: 700 }, { strokeDashoffset: 0, duration: 1.8, ease: 'power2.inOut', stagger: 0.4 }, B(4) + 2.4);
+  tl.from([tw, tj], { opacity: 0, duration: 0.5, stagger: 0.4 }, B(4) + 3.4);
+  var t1b = pos(el('div', 'center body', 'AI 시대 보고서의 품질 = <b style="color:#F2EFE8">결론·근거·실행을 얼마나 선명하게 드러내느냐</b>', s1), 0, 940);
+  fadeUp(t1b, B(4) + 5.2);
+  tl.to([g1, t1], { opacity: 0.25, duration: 0.6 }, B(8) - 0.2);
+  var t1c = pos(el('div', 'center kicker', '7 PRINCIPLES · 직접 만들고 고친 보고서에서 얻은 교훈', s1), 0, 140);
+  typeIn(t1c, B(7) + 0.4, { y: 0, st: 0.02 });
+
+  /* ===== S2 01 결론부터 (9–17) ===== */
+  var a2 = B(9), s2 = scene('s2'); show(s2, a2, B(17));
+  head(s2, '01', '결론부터', '목차가 아니라 <span class="coral">결론 문장</span>부터 정하게 하라', a2);
+  var tour = ['공급과잉', '보호무역', '시장', '실적', '전략', '시사점'];
+  var argue = ['현황·문제점', '원인', '대안 비교', '실행 계획'];
+  var lbA = pos(el('div', 'label', 'AI가 쓰는 목차 · 주제 순회형', s2), 120, 380); fadeUp(lbA, a2 + 1.6, 0.5, 10);
+  tour.forEach(function (t, i) {
+    var r = pos(el('div', '', '<span style="font-family:var(--mono);color:#5C5A55;margin-right:18px">0' + (i + 1) + '</span>' + t, s2), 120, 430 + i * 62, 560);
+    r.style.cssText += ';font-size:34px;font-weight:700;color:#8C8981;border-bottom:1px solid #222226;padding-bottom:10px';
+    tl.from(r, { x: -40, opacity: 0, duration: 0.45 }, a2 + 1.8 + i * 0.18);
+    if (i === 5) { tl.to(r, { color: '#E2734F', duration: 0.3 }, a2 + 3.6); }
+  });
+  var note2 = pos(el('div', 'body', '결론은 <b style="color:#E2734F">맨 뒤</b>에 숨는다', s2), 120, 820); note2.style.fontSize = '28px'; fadeUp(note2, a2 + 3.8, 0.5, 10);
+  var arr2 = pos(el('div', 'h-xl coral', '→', s2), 760, 520); tl.from(arr2, { x: -40, opacity: 0, duration: 0.5 }, a2 + 5.0);
+  var lbB = pos(el('div', 'label', '논증형 · 결론을 증명하는 순서', s2), 960, 380); hideUntil(lbB, a2 + 5.3);
+  argue.forEach(function (t, i) {
+    var r = pos(el('div', 'box', '<span style="font-family:var(--mono);color:#E2734F;margin-right:18px">' + (i + 1) + '</span>' + t, s2), 960, 430 + i * 92, 760);
+    r.style.cssText += ';font-size:36px;font-weight:800;padding:18px 26px;' + (i === 3 ? 'border-color:#E2734F;background:rgba(226,115,79,.08)' : '');
+    tl.from(r, { y: 30, opacity: 0, duration: 0.5 }, a2 + 5.6 + i * 0.3);
+  });
+  // 임원 3질문
+  var qs = ['무엇을 해 달라는가', '왜 지금인가', '안 하면 어떻게 되는가'];
+  var qWrap = pos(el('div', '', '', s2), 0, 0, 1920); qWrap.style.height = '1080px'; hideUntil(qWrap, a2 + 11);
+  tl.to(Array.from(s2.children).filter(function (c) { return c !== qWrap && !c.classList.contains('ch-head') && !c.classList.contains('ch-lead'); }), { autoAlpha: 0, y: -20, duration: 0.45, ease: 'power2.in' }, a2 + 10.5);
+  var ql = pos(el('div', 'label', '쓰기 전에 답할 임원의 3가지 질문', qWrap), 120, 410);
+  qs.forEach(function (q, i) {
+    var c = pos(el('div', 'box', '<div style="font-family:var(--mono);color:#E2734F;font-size:22px">Q' + (i + 1) + '</div><div style="font-size:44px;font-weight:850;margin-top:10px">' + q + '</div>', qWrap), 120 + i * 570, 460, 530);
+    c.style.padding = '34px 36px'; c.style.background = '#141417';
+    tl.from(c, { y: 60, opacity: 0, duration: 0.6, ease: 'back.out(1.6)' }, a2 + 11.4 + i * 0.5);
+  });
+  var q4 = pos(el('div', 'body', '이 답이 없으면 AI는 <b style="color:#F2EFE8">자료 요약</b>을 쓰고, 있으면 <b style="color:#E2734F">보고서</b>를 쓴다', qWrap), 120, 760); fadeUp(q4, a2 + 13.4);
+
+  /* ===== S3 02 숫자 다이어트 (17–25) ===== */
+  var a3 = B(17), s3 = scene('s3'); show(s3, a3, B(25));
+  head(s3, '02', '숫자 다이어트', '결론 문장 하나에 숫자는 <span class="coral">1~2개</span>', a3);
+  var bef = pos(el('div', 'box', '', s3), 120, 400, 1680); bef.style.padding = '34px 40px';
+  bef.innerHTML = '<div class="label" style="color:#E5534B">BEFORE · AI 초안</div><div style="font-size:40px;font-weight:700;line-height:1.5;margin-top:14px;color:#D6D2C9">영업이익은 <span class="num-hl">\'26.1Q</span> <span class="num-hl">2,130억원</span> 저점 후 <span class="num-hl">2개</span> 분기 연속 개선해 <span class="num-hl">3Q</span> <span class="num-hl">4,550억원</span>(이익률 <span class="num-hl">4.6%</span>)이나, <span class="num-hl">1~3Q</span> 누적은 전년 동기 대비 <span class="num-hl">-34.8%</span></div><div id="befMeta" style="margin-top:16px;font-family:var(--mono);font-size:22px;color:#E5534B">95자 · 숫자 8개 · 10초 안에 못 읽음</div>';
+  tl.from(bef, { y: 40, opacity: 0, duration: 0.7 }, a3 + 1.8);
+  tl.from(bef.querySelectorAll('.num-hl'), { backgroundColor: 'rgba(226,115,79,0)', color: '#D6D2C9', duration: 0.25, stagger: 0.2 }, a3 + 2.8);
+  var aft = pos(el('div', 'box', '', s3), 120, 700, 1680); aft.style.cssText += ';padding:34px 40px;border-color:#4FD1C1;background:rgba(79,209,193,.06)';
+  aft.innerHTML = '<div class="label" style="color:#4FD1C1">AFTER · 다이어트</div><div style="font-size:54px;font-weight:850;line-height:1.35;margin-top:14px">이익은 두 분기 연속 회복했지만, 누적은 아직 전년보다 <span class="teal">35%</span> 적음</div><div style="margin-top:14px;font-family:var(--mono);font-size:22px;color:#4FD1C1">38자 · 핵심 숫자 1개 · 나머지 숫자는 해설 단락과 차트로</div>';
+  tl.from(aft, { y: 60, opacity: 0, duration: 0.8 }, a3 + 7.2);
+  tl.to(bef, { opacity: 0.35, scale: 0.97, transformOrigin: 'left top', duration: 0.6 }, a3 + 7.2);
+  var st3 = pos(el('div', '', '', s3), 0, 0, 1920); st3.style.height = '1080px'; hideUntil(st3, a3 + 12.4);
+  tl.to([bef, aft], { opacity: 0, y: -30, duration: 0.5, ease: 'power2.in' }, a3 + 12);
+  var l3 = pos(el('div', 'label', 'POSCO 보고서 3건 · 섹션 결론 문장 평균', st3), 120, 420);
+  [['수정 전', 90, '#5C5A55', '숫자 4~6개'], ['수정 후', 50, '#E2734F', '숫자 1~2개']].forEach(function (r, i) {
+    var row = pos(el('div', '', '', st3), 120, 480 + i * 150, 1680);
+    row.innerHTML = '<div style="font-size:30px;font-weight:700;color:#B9B5AC">' + r[0] + ' <span style="font-family:var(--mono);font-size:22px;color:#6F6C66;margin-left:12px">' + r[3] + '</span></div>';
+    var bar = el('div', '', '', row); bar.style.cssText = 'margin-top:12px;height:54px;border-radius:10px;background:' + r[2] + ';width:' + (r[1] / 90 * 1300) + 'px';
+    var v = el('div', '', '', row); v.style.cssText = 'position:absolute;top:44px;left:' + (r[1] / 90 * 1300 + 24) + 'px;font-size:48px;font-weight:900;color:' + (i ? '#E2734F' : '#8C8981');
+    tl.from(bar, { width: 0, duration: 1, ease: 'expo.out' }, a3 + 12.8 + i * 0.6);
+    counter(v, 0, r[1], a3 + 12.8 + i * 0.6, 1, 0, '자');
+  });
+  var n3 = pos(el('div', 'body', '린트가 <b style="color:#F2EFE8">60자 · 숫자 2개</b>를 넘는 결론 문장을 잡아낸다', st3), 120, 830); fadeUp(n3, a3 + 15);
+
+  /* ===== S4 03 안 읽히는 것 삭제 (25–32) ===== */
+  var a4 = B(25), s4 = scene('s4'); show(s4, a4, B(32));
+  head(s4, '03', '안 읽히는 것은 지운다', '아무도 읽지 않는 것은 <span class="coral">쓰지 마라</span>', a4);
+  var fx = ['90.26 ÷ 1,019.08 = 8.9%', '119.02 ÷ 90.26 − 1 = +31.9%', '17조9,200억 − 8조9,470억 = 8조9,730억', '5,850 ÷ 87,960 ≈ 6.6%', '2,130 + 2,740 + 4,550 = 9,420', '4,360 ÷ 5,600 − 1 = −22.1%', '(73+50+48+42+40) ÷ 460 = 55.0%', '8,586억 + 5조3,650억 ≈ 6.2조'];
+  var fxEls = fx.map(function (f, i) {
+    var e = pos(el('div', '', '<span style="font-family:var(--mono)">' + f + '</span>', s4), 120 + (i % 2) * 860, 400 + Math.floor(i / 2) * 92, 820);
+    e.style.cssText += ';font-size:32px;color:#8C8981;padding:10px 0';
+    var strike = el('div', '', '', e); strike.style.cssText = 'position:absolute;left:0;top:50%;height:4px;width:100%;background:#E5534B;transform-origin:left;transform:scaleX(0)';
+    tl.from(e, { y: -30, opacity: 0, duration: 0.4 }, a4 + 1.6 + i * 0.22);
+    tl.to(strike, { scaleX: 1, duration: 0.35, ease: 'power2.in' }, a4 + 5.6 + i * 0.12);
+    return e;
+  });
+  tl.to(fxEls, { opacity: 0, y: 30, duration: 0.4, stagger: 0.04, ease: 'power2.in' }, a4 + 7.4);
+  var c4w = pos(el('div', '', '', s4), 0, 0, 1920); c4w.style.height = '1080px'; hideUntil(c4w, a4 + 8);
+  var c4 = pos(el('div', 'h-xxl', '', c4w), 120, 400); c4.style.color = '#E5534B';
+  counter(c4, 15, 0, a4 + 8.4, 2, 0, '건');
+  var c4l = pos(el('div', 'label', '부록 "분석자 산식" — 계산 과정 나열', c4w), 120, 380);
+  var c4b = pos(el('div', 'h-m', '검산은 <span class="coral">작성자의 일</span>,<br>독자의 일이 아니다', c4w), 760, 420); typeIn(c4b, a4 + 9.6, { st: 0.03 });
+  var c4n = pos(el('div', 'body', '추정·역산 값은 차트 주석에 <b style="color:#F2EFE8">방법 한 줄</b>만 · 추정 모델만 공식 1줄 + 가정', c4w), 120, 720); fadeUp(c4n, a4 + 12);
+
+  /* ===== S5 04 사실·판단·권고 (32–40) ===== */
+  var a5 = B(32), s5 = scene('s5'); show(s5, a5, B(40));
+  head(s5, '04', '사실 · 판단 · 권고', 'AI의 <span class="coral">단정형 문장</span>을 의심하라', a5);
+  var FJ = [['사실', '#B9B5AC', '2025년 중국 철강재 수출은 1억1,902만t였다', '~였다 + 출처·시점'], ['판단', '#E9C46A', '공급과잉은 2028년까지 이어질 가능성 높음', '가능성 + 확신도'], ['권고', '#E2734F', '2027.06까지 쿼터 배분 기준을 재설계할 것', '담당 · 기한']];
+  FJ.forEach(function (f, i) {
+    var r = pos(el('div', '', '', s5), 120, 400 + i * 120, 1680);
+    r.innerHTML = '<span class="tag" style="color:' + f[1] + ';width:110px;text-align:center">' + f[0] + '</span><span style="font-size:36px;font-weight:750;margin-left:28px">' + f[2] + '</span><span style="float:right;font-family:var(--mono);font-size:21px;color:#6F6C66;margin-top:12px">' + f[3] + '</span>';
+    r.style.borderBottom = '1px solid #232327'; r.style.paddingBottom = '22px';
+    tl.from(r, { x: -50, opacity: 0, duration: 0.6 }, a5 + 2 + i * 0.7);
+  });
+  var sc5 = pos(el('div', '', '', s5), 120, 790, 1680); hideUntil(sc5, a5 + 6.6);
+  el('div', 'label', '가능성 표현은 7단계로 고정 · 숫자 범위를 붙이면 해석 일치율 32% → 66%', sc5);
+  var lv = [['거의 없음', '1~5'], ['매우 낮음', '5~20'], ['낮음', '20~45'], ['반반', '45~55'], ['높음', '55~80'], ['매우 높음', '80~95'], ['거의 확실', '95~99']];
+  var lvRow = el('div', '', '', sc5); lvRow.style.cssText = 'display:flex;gap:8px;margin-top:18px';
+  lv.forEach(function (l, i) {
+    var c = el('div', '', '<div style="font-size:24px;font-weight:800">' + l[0] + '</div><div style="font-family:var(--mono);font-size:18px;color:#8C8981">' + l[1] + '%</div>', lvRow);
+    c.style.cssText = 'flex:1;padding:16px 14px;border-radius:10px;background:rgba(233,196,106,' + (0.05 + i * 0.05) + ');border:1px solid ' + (i === 4 ? '#E9C46A' : '#2A2A2F');
+    tl.from(c, { y: 30, opacity: 0, duration: 0.4 }, a5 + 7 + i * 0.12);
+  });
+  tl.to(lvRow.children[4], { scale: 1.08, duration: 0.4, ease: 'back.out(3)' }, a5 + 9.4);
+
+  /* ===== S6 05 실행으로 끝내라 (40–48) ===== */
+  var a6 = B(40), s6 = scene('s6'); show(s6, a6, B(48));
+  head(s6, '05', '실행으로 끝내라', '권고는 <span class="coral">누가 · 언제까지 · 무엇으로</span> 끝난다', a6);
+  var empt = ['TF 구성', '검토 필요', '모니터링 강화', '협력 강화'];
+  empt.forEach(function (e, i) {
+    var d = pos(el('div', '', e, s6), 120 + i * 420, 410, 380); d.style.cssText += ';font-size:44px;font-weight:850;color:#8C8981';
+    var sk = el('div', '', '', d); sk.style.cssText = 'position:absolute;left:-6px;right:60px;top:52%;height:5px;background:#E5534B;transform:scaleX(0);transform-origin:left';
+    tl.from(d, { y: 30, opacity: 0, duration: 0.5 }, a6 + 1.8 + i * 0.25);
+    tl.to(sk, { scaleX: 1, duration: 0.3 }, a6 + 3.6 + i * 0.15);
+  });
+  var e6 = pos(el('div', 'body', '절차와 다짐은 대안이 아니다 <span class="muted" style="font-size:24px">— 국가공무원인재개발원 보고서 교재</span>', s6), 120, 490); fadeUp(e6, a6 + 4.6, 0.5, 10);
+  var tb = pos(el('div', '', '', s6), 120, 600, 1680); hideUntil(tb, a6 + 5.6);
+  var cols = [['과제', 600], ['담당', 260], ['기한', 240], ['성공 지표', 560]];
+  var hdr = el('div', '', '', tb); hdr.style.cssText = 'display:flex;border-top:3px solid #E2734F;background:rgba(255,255,255,.03)';
+  cols.forEach(function (c) { var h = el('div', 'label', c[0], hdr); h.style.cssText += ';width:' + c[1] + 'px;padding:16px 20px;color:#B9B5AC'; });
+  var rows = [['4분기 단가 3% 인상 통보', '영업본부', '2026.11.30', '이익률 7.8% → 8.6%'], ['원재료 장기계약 재협상', '구매팀', '2026.12.15', '원재료비 −2%'], ['이탈 위험 고객 2곳 개별 조건', '영업1팀', '2026.11.20', '이탈 0곳']];
+  rows.forEach(function (r, i) {
+    var row = el('div', '', '', tb); row.style.cssText = 'display:flex;border-bottom:1px solid #26262B';
+    r.forEach(function (v, j) {
+      var c = el('div', '', v, row); c.style.cssText = 'width:' + cols[j][1] + 'px;padding:18px 20px;font-size:28px;font-weight:' + (j ? 600 : 800) + ';color:' + (j === 2 ? '#E2734F' : j === 3 ? '#4FD1C1' : '#F2EFE8');
+      tl.from(c, { opacity: 0, y: 12, duration: 0.35 }, a6 + 6.2 + i * 0.7 + j * 0.15);
+    });
+  });
+  var n6 = pos(el('div', 'body', 'AI가 쓴 POSCO 보고서 3건: 담당·기한 표현 <b style="color:#E5534B">0건</b> → 실행 과제 표 필수화', s6), 120, 900); n6.style.fontSize = '28px'; fadeUp(n6, a6 + 9.4, 0.6, 10);
+
+  /* ===== S7 06 디자인은 키트에 (48–56) ===== */
+  var a7 = B(48), s7 = scene('s7'); show(s7, a7, B(56));
+  head(s7, '06', '디자인은 키트에', 'AI에게는 <span class="coral">내용</span>을, 디자인은 <span class="teal">키트</span>에 맡겨라', a7);
+  var L7 = [['AI가 쓰는 것', '결론 문장 · 해설 단락 · JSON 데이터', '#E2734F', '{ "type": "bar", "title": "…", "series": [ … ] }'],
+            ['키트가 하는 것', 'CSS · ECharts 22종 · 팔레트 6종 · 인쇄 · 반응형', '#4FD1C1', 'report-kit.css + report-kit.js'],
+            ['결과', '어떤 모델이 써도 같은 품질의 보고서', '#F2EFE8', 'single-file HTML']];
+  L7.forEach(function (l, i) {
+    var b = pos(el('div', 'box', '<div class="label" style="color:' + l[2] + '">' + l[0] + '</div><div style="font-size:38px;font-weight:850;margin-top:10px">' + l[1] + '</div><div style="font-family:var(--mono);font-size:20px;color:#6F6C66;margin-top:10px">' + l[3] + '</div>', s7), 120, 390 + i * 165, 1100);
+    b.style.padding = '24px 32px'; b.style.borderLeft = '4px solid ' + l[2];
+    tl.from(b, { x: -60, opacity: 0, duration: 0.6 }, a7 + 2 + i * 0.9);
+    if (i < 2) { var ar = pos(el('div', '', '↓', s7), 640, 530 + i * 165); ar.style.cssText += ';font-size:30px;color:#6F6C66'; tl.from(ar, { opacity: 0, duration: 0.3 }, a7 + 2.6 + i * 0.9); }
+  });
+  var hk = pos(el('div', 'box', '', s7), 1300, 390, 500); hk.style.padding = '34px 36px'; hk.style.borderColor = '#4FD1C1';
+  hk.innerHTML = '<div class="label">LOW-TIER MODEL TEST · HAIKU</div><div style="font-size:30px;font-weight:700;margin-top:14px;color:#B9B5AC">처음부터 쓴 투자 보고서</div><div id="hkv" style="font-size:120px;font-weight:900;color:#4FD1C1;line-height:1.1;margin-top:10px"></div><div style="font-family:var(--mono);font-size:22px;color:#B9B5AC">LINT WARNINGS</div><div style="font-size:24px;margin-top:20px;color:#8C8981;line-height:1.5">스스로 "5년 기준이면 다른 대안이 유리"라는 약점까지 찾아냄</div>';
+  hideUntil(hk, a7 + 5.4, 0.6);
+  counter($('#hkv', hk), 14, 0, a7 + 5.8, 2.2, 0, '건');
+
+  /* ===== S8 07 검증 자동화 (56–64) ===== */
+  var a8 = B(56), s8 = scene('s8'); show(s8, a8, B(64));
+  head(s8, '07', '검증 자동화', '사람의 눈보다 <span class="coral">체크리스트</span>가 먼저 본다', a8);
+  var steps = ['기획 메모', '결론 목차', '초안 작성', '린트', '결론 이어 읽기', '렌더 검사', '사람의 판단'];
+  var g8 = svg('svg', { width: W, height: H, viewBox: '0 0 1920 1080', style: 'position:absolute;left:0;top:0' }, s8);
+  var sx = function (i) { return 200 + i * 253; }, sy = 520;
+  var base8 = svg('line', { x1: sx(0), y1: sy, x2: sx(6), y2: sy, stroke: '#26262B', 'stroke-width': 6 }, g8);
+  var prog8 = svg('line', { x1: sx(0), y1: sy, x2: sx(0), y2: sy, stroke: '#E2734F', 'stroke-width': 6, 'stroke-linecap': 'round' }, g8);
+  tl.from(base8, { opacity: 0, duration: 0.4 }, a8 + 1.6);
+  tl.to(prog8, { attr: { x2: sx(6) }, duration: 8, ease: 'none' }, a8 + 2.2);
+  steps.forEach(function (s, i) {
+    var t = a8 + 2.2 + i * 8 / 6;
+    var c = svg('circle', { cx: sx(i), cy: sy, r: 30, fill: '#0B0B0D', stroke: '#3A3A40', 'stroke-width': 4 }, g8);
+    var ck = svg('path', { d: 'M' + (sx(i) - 12) + ' ' + sy + ' l9 9 l16 -18', fill: 'none', stroke: '#0B0B0D', 'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 }, g8);
+    var tx = svg('text', { x: sx(i), y: sy + 76, fill: '#B9B5AC', 'font-size': 24, 'text-anchor': 'middle', 'font-family': 'Pretendard Variable, Pretendard, sans-serif', 'font-weight': 700 }, g8); tx.textContent = s;
+    tl.from([c, tx], { opacity: 0, duration: 0.4 }, a8 + 1.8 + i * 0.12);
+    tl.to(c, { attr: { fill: i === 6 ? '#4FD1C1' : '#E2734F', stroke: i === 6 ? '#4FD1C1' : '#E2734F', r: 34 }, duration: 0.3, ease: 'back.out(3)' }, t);
+    tl.to(ck, { opacity: 1, duration: 0.2 }, t + 0.1);
+    tl.to(tx, { attr: { fill: '#F2EFE8' }, duration: 0.3 }, t);
+  });
+  var chk = ['결론 문장 60자 · 숫자 2개', '요약 ↔ 본문 숫자 일치', '모든 차트에 출처', '실행 과제 표 · 담당·기한', '전망엔 확신도 배지', '계산 과정 나열 금지'];
+  chk.forEach(function (c, i) {
+    var e = pos(el('div', '', '<span style="color:#4FD1C1;margin-right:12px">✓</span>' + c, s8), 200 + (i % 3) * 540, 720 + Math.floor(i / 3) * 66, 520);
+    e.style.cssText += ';font-family:var(--mono);font-size:24px;color:#B9B5AC';
+    tl.from(e, { opacity: 0, x: -20, duration: 0.4 }, a8 + 6 + i * 0.35);
+  });
+  var n8 = pos(el('div', 'body', '마지막 칸은 비워 둔다 — <b style="color:#4FD1C1">결정은 사람이 한다</b>', s8), 200, 890); fadeUp(n8, a8 + 10.6, 0.6, 10);
+
+  /* ===== S9 08 결론 + 엔딩 (64–75) ===== */
+  var a9 = B(64), s9 = scene('s9'); show(s9, a9);
+  var e9 = pos(el('div', '', '', s9), 0, 0, 1920); e9.style.height = '1080px';
+  var h9 = pos(el('div', 'center h-xl', 'AI는 <span class="muted">초안</span>을,<br>사람은 <span class="coral">결정</span>을.', e9), 0, 250);
+  typeIn(h9, a9 + 0.4, { st: 0.05 });
+  var rules = ['결론부터', '숫자 다이어트', '안 읽히는 것 삭제', '사실·판단·권고 구분', '실행으로 끝내기', '디자인은 키트에', '검증 자동화'];
+  rules.forEach(function (r, i) {
+    var e = pos(el('div', '', '<span style="font-family:var(--mono);color:#E2734F;font-size:20px;margin-right:10px">0' + (i + 1) + '</span>' + r, e9), 0, 0);
+    var x = 150 + (i % 4) * 420, y = 620 + Math.floor(i / 4) * 80; if (i >= 4) x += 210;
+    pos(e, x, y, 400); e.style.cssText += ';font-size:30px;font-weight:750;padding:14px 20px;border:1px solid #2E2E33;border-radius:12px;background:rgba(255,255,255,.03)';
+    tl.from(e, { y: 30, opacity: 0, scale: 0.9, duration: 0.45, ease: 'back.out(2)' }, a9 + 3.2 + i * 0.3);
+  });
+  tl.to(e9, { opacity: 0, duration: 0.6, ease: 'power2.in' }, B(71) - 0.6);
+  // 엔딩 카드
+  var endW = pos(el('div', '', '', s9), 0, 0, 1920); endW.style.height = '1080px'; hideUntil(endW, B(71), 0.4);
+  var g9 = svg('svg', { width: W, height: H, viewBox: '0 0 1920 1080', style: 'position:absolute;left:0;top:0' }, endW);
+  var pages = [];
+  for (var q = 0; q < 3; q++) { pages.push(svg('rect', { x: 880 + q * 26, y: 290 + q * 22, width: 160, height: 210, rx: 10, fill: q === 2 ? '#E2734F' : '#1A1A1E', stroke: '#3A3A40', 'stroke-width': 2 }, g9)); }
+  tl.from(pages, { y: 60, opacity: 0, duration: 0.7, stagger: 0.15, ease: 'back.out(1.8)' }, B(71) + 0.2);
+  var end1 = pos(el('div', 'center h-l', '좋은 보고서는 <span class="coral">판단</span>을 남긴다', endW), 0, 600); end1.style.fontSize = '64px';
+  typeIn(end1, B(71) + 0.8, { st: 0.035 });
+  var end2 = pos(el('div', 'center label', 'MADE WITH CLAUDE OPUS 5.5 · VERTICAL-HTML-REPORT SKILL · MUSIC: TONE.JS LIVE SYNTH', endW), 0, 720); fadeUp(end2, B(72) + 0.4, 0.8, 10);
+  var end3 = pos(el('div', 'center label', '근거: MINTO · AMAZON 6-PAGER · ICD 203 · IBCS · 국가공무원인재개발원 · 직접 수정한 보고서 사례', endW), 0, 760); end3.style.fontSize = '15px'; fadeUp(end3, B(72) + 0.8, 0.8, 10);
+  tl.to(['#scenes', '#bg-glow', '#bg-glow2'], { opacity: 0, duration: 1.4, ease: 'power1.in' }, DUR - 1.4);
+  tl.set({}, {}, DUR);
+
+  /* ================= 음악 (Tone.js) ================= */
+  var audioReady = null;
+  function buildMusic() {
+    var T = Tone.Transport; T.bpm.value = BPM; T.cancel(0);
+    var limiter = new Tone.Limiter(-1).toDestination();
+    var comp = new Tone.Compressor({ threshold: -18, ratio: 3, attack: 0.008, release: 0.2 }).connect(limiter);
+    var eq = new Tone.EQ3({ low: 1.5, mid: -1.5, high: 1 }).connect(comp);
+    var verb = new Tone.Reverb({ decay: 5, preDelay: 0.03, wet: 1 }).connect(eq);
+    var verbSend = new Tone.Gain(0.32).connect(verb);
+    var delay = new Tone.FeedbackDelay({ delayTime: '8n.', feedback: 0.34, wet: 1 }).connect(eq);
+    var delaySend = new Tone.Gain(0.22).connect(delay);
+    var duck = new Tone.Gain(1).connect(eq); // 킥 사이드체인 버스
+    // 악기
+    var padF = new Tone.Filter({ frequency: 420, type: 'lowpass', rolloff: -24, Q: 0.8 }); padF.connect(duck); padF.connect(verbSend);
+    var pad = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'fatsawtooth', count: 3, spread: 26 }, envelope: { attack: 0.9, decay: 0.6, sustain: 0.8, release: 2.2 }, volume: -21 }).connect(padF);
+    var bass = new Tone.MonoSynth({ oscillator: { type: 'sawtooth' }, filter: { type: 'lowpass', Q: 1.2, rolloff: -24 }, filterEnvelope: { attack: 0.004, decay: 0.22, sustain: 0.25, release: 0.3, baseFrequency: 70, octaves: 2.6 }, envelope: { attack: 0.004, decay: 0.2, sustain: 0.55, release: 0.15 }, volume: -11 }).connect(duck);
+    var kick = new Tone.MembraneSynth({ pitchDecay: 0.045, octaves: 6, oscillator: { type: 'sine' }, envelope: { attack: 0.001, decay: 0.42, sustain: 0, release: 0.1 }, volume: -3 }).connect(eq);
+    var hatF = new Tone.Filter(8500, 'highpass').connect(eq);
+    var hat = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.045, sustain: 0 }, volume: -25 }).connect(hatF);
+    var ohat = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.002, decay: 0.22, sustain: 0 }, volume: -30 }).connect(hatF);
+    var clapF = new Tone.Filter({ frequency: 1700, type: 'bandpass', Q: 1.1 }); clapF.connect(eq); clapF.connect(verbSend);
+    var clap = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.002, decay: 0.17, sustain: 0 }, volume: -12 }).connect(clapF);
+    var arp = new Tone.Synth({ oscillator: { type: 'triangle8' }, envelope: { attack: 0.002, decay: 0.16, sustain: 0.08, release: 0.25 }, volume: -19 }); arp.connect(duck); arp.connect(delaySend); arp.connect(verbSend);
+    var leadF = new Tone.Filter({ frequency: 2600, type: 'lowpass', Q: 1 }); leadF.connect(duck); leadF.connect(delaySend); leadF.connect(verbSend);
+    var lead = new Tone.MonoSynth({ oscillator: { type: 'fatsquare', count: 2, spread: 12 }, portamento: 0.035, filter: { Q: 2, type: 'lowpass' }, filterEnvelope: { attack: 0.01, decay: 0.28, sustain: 0.45, baseFrequency: 500, octaves: 2.8 }, envelope: { attack: 0.012, decay: 0.2, sustain: 0.6, release: 0.35 }, volume: -18 }).connect(leadF);
+    var riserF = new Tone.Filter({ frequency: 300, type: 'bandpass', Q: 2 }); riserF.connect(eq); riserF.connect(verbSend);
+    var riser = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 2.2, decay: 0.01, sustain: 1, release: 0.05 }, volume: -20 }).connect(riserF);
+    var boom = new Tone.MembraneSynth({ pitchDecay: 0.2, octaves: 4, envelope: { attack: 0.001, decay: 1.6, sustain: 0 }, volume: -6 }); boom.connect(eq); boom.connect(verbSend);
+    var crash = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 1.4, sustain: 0 }, volume: -24 }); crash.connect(hatF); crash.connect(verbSend);
+    var snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.09, sustain: 0 }, volume: -20 }).connect(clapF);
+
+    // 화성: Am9 – Fmaj7 – Cmaj7 – G6 (마디당 1화음)
+    var CH = [{ b: 'A1', p: ['A3', 'C4', 'E4', 'G4', 'B4'], a: ['A4', 'C5', 'E5', 'G5'] }, { b: 'F1', p: ['F3', 'A3', 'C4', 'E4', 'G4'], a: ['F4', 'A4', 'C5', 'E5'] },
+              { b: 'C2', p: ['G3', 'C4', 'E4', 'G4', 'B4'], a: ['C5', 'E5', 'G5', 'B5'] }, { b: 'G1', p: ['G3', 'B3', 'D4', 'E4', 'A4'], a: ['G4', 'B4', 'D5', 'E5'] }];
+    var MEL = [ // 4마디 모티프 [마디내 시작(8분음표), 음, 길이]
+      [[0, 'E5', '4n'], [2, 'G5', '8n'], [3, 'A5', '8n'], [4, 'G5', '4n'], [6, 'E5', '4n']],
+      [[0, 'D5', '4n.'], [3, 'C5', '8n'], [4, 'D5', '4n'], [6, 'E5', '4n']],
+      [[0, 'E5', '4n'], [2, 'G5', '8n'], [3, 'A5', '8n'], [4, 'C6', '4n'], [6, 'B5', '4n']],
+      [[0, 'A5', '2n'], [4, 'G5', '4n'], [6, 'E5', '4n']]];
+    function sec(b) { // 구간별 편성
+      if (b < 4) return 'intro'; if (b < 9) return 'verse0'; if (b < 25) return 'groove'; if (b < 32) return 'break';
+      if (b < 56) return 'drop'; if (b < 64) return 'build'; if (b < 72) return 'final'; return 'outro';
+    }
+    var e8 = BAR / 8, e4 = BAR / 4;
+    function duckAt(t) { duck.gain.cancelAndHoldAtTime(t); duck.gain.setValueAtTime(0.32, t); duck.gain.linearRampToValueAtTime(1, t + 0.24); }
+    var padCut = { intro: [380, 900], verse0: [900, 1500], groove: [1800, 1800], break: [700, 1200], drop: [2600, 2600], build: [1200, 4200], final: [3000, 3000], outro: [1500, 300] };
+    for (var b = 0; b < 75; b++) {
+      (function (b) {
+        var t0 = b * BAR, s = sec(b), ch = CH[b % 4];
+        T.schedule(function (time) {
+          var cut = padCut[s];
+          padF.frequency.setValueAtTime(cut[0] + (cut[1] - cut[0]) * ((b % 8) / 8), time);
+          padF.frequency.linearRampToValueAtTime(cut[0] + (cut[1] - cut[0]) * (((b % 8) + 1) / 8), time + BAR);
+          if (s === 'build') leadF.frequency.setValueAtTime(2600, time);
+          pad.triggerAttackRelease(s === 'outro' && b === 74 ? ch.p.slice(0, 3) : ch.p, BAR * 0.97, time, s === 'intro' ? 0.6 : 0.8);
+          // 베이스
+          if (s === 'verse0') { bass.triggerAttackRelease(ch.b, BAR * 0.45, time, 0.7); bass.triggerAttackRelease(ch.b, BAR * 0.4, time + BAR / 2, 0.6); }
+          if (s === 'groove' || s === 'drop' || s === 'final' || s === 'build') {
+            for (var i = 0; i < 8; i++) { if (s === 'build' && i % 2) continue; var n = Tone.Frequency(ch.b).transpose(i === 3 || i === 7 ? 12 : 0).toNote(); bass.triggerAttackRelease(n, e8 * 0.7, time + i * e8, i % 2 ? 0.55 : 0.85); }
+          }
+          // 킥·사이드체인
+          if (s === 'verse0') { [0, 2].forEach(function (q) { kick.triggerAttackRelease('C1', '8n', time + q * e4, 0.8); duckAt(time + q * e4); }); }
+          if (s === 'groove' || s === 'drop' || s === 'final' || s === 'build') { for (var k = 0; k < 4; k++) { kick.triggerAttackRelease('C1', '8n', time + k * e4, 1); duckAt(time + k * e4); } }
+          // 하이햇·클랩
+          if (s === 'groove' || s === 'drop' || s === 'final') {
+            for (var h = 0; h < 8; h++) { if (h % 2) hat.triggerAttackRelease('32n', time + h * e8, h % 4 === 3 ? 0.9 : 0.6); }
+            if (s !== 'groove') for (var h2 = 0; h2 < 16; h2++) if (h2 % 4 === 2) hat.triggerAttackRelease('64n', time + h2 * e8 / 2, 0.35);
+            ohat.triggerAttackRelease('8n', time + 7 * e8, 0.5);
+            clap.triggerAttackRelease('16n', time + e4, 0.9); clap.triggerAttackRelease('16n', time + 3 * e4, 0.9);
+          }
+          // 빌드업 스네어 롤(점점 촘촘·크게)
+          if (s === 'build') {
+            var div = b < 60 ? 4 : b < 62 ? 8 : 16, step = BAR / div;
+            for (var r = 0; r < div; r++) snare.triggerAttackRelease('64n', time + r * step, 0.3 + 0.7 * ((b - 56) * div + r) / (8 * div));
+          }
+          // 아르페지오(8분음표)
+          if (s === 'groove' || s === 'break' || s === 'drop' || s === 'final') {
+            var pat = [0, 1, 2, 3, 2, 1, 2, 3];
+            for (var a = 0; a < 8; a++) arp.triggerAttackRelease(ch.a[pat[a]], '16n', time + a * e8, s === 'break' ? 0.55 : 0.75);
+          }
+          // 리드 멜로디
+          if (s === 'drop' || s === 'final') {
+            MEL[b % 4].forEach(function (m) { lead.triggerAttackRelease(m[1], m[2], time + m[0] * e8, 0.8); });
+          }
+        }, t0);
+      })(b);
+    }
+    // 장면 전환: 직전 1마디 라이저 + 다운비트 임팩트
+    [4, 9, 17, 25, 32, 40, 48, 56, 64, 71].forEach(function (bb) {
+      var t = bb * BAR;
+      T.schedule(function (time) {
+        riserF.frequency.setValueAtTime(300, time); riserF.frequency.exponentialRampToValueAtTime(7000, time + BAR * 0.95);
+        riser.triggerAttackRelease(BAR * 0.95, time, 0.9);
+      }, t - BAR);
+      T.schedule(function (time) { boom.triggerAttackRelease('A0', '2n', time, 0.9); crash.triggerAttackRelease('2n', time, bb === 32 || bb === 64 ? 1 : 0.6); }, t);
+    });
+    // 엔딩 페이드
+    T.schedule(function (time) { Tone.Destination.volume.setValueAtTime(0, time); Tone.Destination.volume.linearRampToValueAtTime(-40, time + 4); }, DUR - 4);
+    return Tone.loaded();
+  }
+
+  // 재생: Tone.Transport 시계로 GSAP 타임라인을 구동(음악과 영상이 같은 시계)
+  var playing = false;
+  window.__seek = function (t) { tl.seek(t, false); };
+  window.__duration = DUR;
+  window.__ready = document.fonts.ready.then(function () { tl.seek(0); return true; });
+  gsap.ticker.add(function () { if (playing) { var t = Tone.Transport.seconds; tl.seek(Math.min(t, DUR), false); if (t >= DUR) { playing = false; Tone.Transport.stop(); } } });
+  async function start() {
+    $('#play').style.display = 'none';
+    await Tone.start();
+    if (!audioReady) audioReady = buildMusic();
+    await audioReady;
+    Tone.Destination.volume.value = 0;
+    Tone.Transport.seconds = 0;
+    Tone.Transport.start('+0.05');
+    playing = true;
+  }
+  if (!R) {
+    $('#play').addEventListener('click', start);
+    addEventListener('keydown', function (e) {
+      if (e.code !== 'Space') return;
+      e.preventDefault();
+      if (Tone.Transport.state === 'started') { Tone.Transport.pause(); playing = false; }
+      else if (audioReady) { Tone.Transport.start(); playing = true; }
+    });
+    addEventListener('contextmenu', function (e) { if (e.shiftKey || e.ctrlKey) return; e.preventDefault(); if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); });
+    tl.seek(0);
+  }
+})();
+</script>
+</body>
+</html>
